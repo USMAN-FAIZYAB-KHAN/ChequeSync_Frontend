@@ -1,48 +1,103 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    elevation: 5,
+    backgroundColor: 'transparent', // Use gradient background
+    borderTopWidth: 0,
+    height: 70,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    paddingBottom: 10,
+  },
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#CC2B52',
+    padding: 10,
+    borderTopLeftRadius: 15,
+    
+    borderBottomLeftRadius: 25,
+  borderBottomRightRadius: 35,
+    shadowColor: '#D4BEE4',
+    // shadowOffset: { width: 5, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    height: 70,
+    width: 83,
+    fontSize: 12,
+  },
+  inactiveTab: {
+    padding: 10,
   },
 });
 
-const tabBarOptions = {
-  activeTintColor: '#6200ee',
-  inactiveTintColor: '#888',
-  style: styles.tabBar,
+const Layout = () => {
+  return (
+    <LinearGradient
+      // colors={['#8ec5fc', '#e0c3fc']}
+      // start={{ x: 0, y: 0 }}
+      // end={{ x: 1, y: 1 }}
+      // style={{ flex: 1 }}
+      colors={['#000000', '#3C3D37']}  // Example new colors
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
+
+    >
+      <Tabs
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color }) => {
+            let iconName;
+            let iconStyle = focused ? styles.activeTab : styles.inactiveTab;
+
+            // Assign icon names based on route name
+            if (route.name === 'cheque') {
+              iconName = "money-check-alt";  // Alternative icon name
+            } else if (route.name === 'upload') {
+              iconName = "cloud-upload-alt";  // Commonly available in FontAwesome5
+            } else if (route.name === 'notification') {
+              iconName = "bell";
+            }
+
+            return (
+              <View style={[styles.tabItem, iconStyle]}>
+                <FontAwesome5 name={iconName} size={22} color={focused ? '#ffffff' : color} />
+                <Text style={{ color: focused ? '#ffffff' : color, fontSize: 12, marginTop: 5 }}>
+                  {route.name.charAt(0).toUpperCase() + route.name.slice(1)}
+                </Text>
+              </View>
+            );
+          },
+          tabBarActiveTintColor: '#ffffff',
+          tabBarInactiveTintColor: '#888',
+          tabBarStyle: styles.tabBar,
+          tabBarShowLabel: false, // Label is custom-rendered inside icon
+        })}
+      >
+        <Tabs.Screen
+          name="cheque"
+          options={{ title: 'Cheque' }}
+        />
+        <Tabs.Screen
+          name="upload"
+          options={{ title: 'Upload' }}
+        />
+        <Tabs.Screen
+          name="notification"
+          options={{ title: 'Notification' }}
+        />
+      </Tabs>
+    </LinearGradient>
+  );
 };
 
-export default function Layout() {
-  return (
-    <Tabs screenOptions={tabBarOptions}>
-      <Tabs.Screen 
-        name="cheque" 
-        options={{ 
-          title: 'Cheque',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="money-check" size={22} color={color} /> 
-        }} 
-      />
-      <Tabs.Screen 
-        name="upload" 
-        options={{
-          title: 'Upload',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="plus" size={22} color={color} /> 
-        }} 
-      />
-      <Tabs.Screen 
-        name="notification" 
-        options={{  
-          title: 'Notification',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="bell" size={22} color={color} /> 
-        }} 
-      />
-    </Tabs>
-  );
-}
-
+export default Layout;

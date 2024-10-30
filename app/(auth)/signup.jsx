@@ -1,23 +1,66 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+
+
+//custom files
+import { registerRequest } from '../../serverRequest';
 
 const SignUpForm = () => {
+
+  const navigation = useNavigation();
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  // const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNo, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter(); // For navigation
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
+    // Check for matching passwords
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    // Add your sign-up logic here
-    console.log('Name:', name);
-    console.log('Email:', email);
-    console.log('Password:', password);
+
+    // Validate phone number length and format
+    if (phoneNo.length !== 11 || !/^\d+$/.test(phoneNo)) {
+      alert('Phone number must be exactly 11 digits and contain only numbers');
+      return;
+    }
+
+    const data = {
+      userName: name,
+      firstName: firstName,
+      lastName: lastName,
+      phoneNo: phoneNo,
+      password: password,
+      type: 'member',
+    }
+
+    let res = await registerRequest(data)
+
+    if (typeof res === 'string' && res.includes('exists')) {
+      
+      alert('User Already Exists');
+      return;
+    }
+    if (typeof res === 'string' && res.includes('wrong')) {
+      
+      alert('Something Went Wrong While Creating the User');
+      return;
+    }  
+    
+    else if (typeof res === 'number' && res === 201) {
+      navigation.navigate('signin');
+      return;
+    }
+
+
+
   };
 
   return (
@@ -26,20 +69,36 @@ const SignUpForm = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder="Username"
         value={name}
         onChangeText={setName}
+        autoCapitalize="words"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
         autoCapitalize="words"
       />
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
+        placeholder="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
+        autoCapitalize="words"
       />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        value={phoneNo}
+        onChangeText={setPhoneNumber}
+        keyboardType="number-pad"
+        maxLength={12} // Restrict input length to 12 characters
+      />
+
 
       <TextInput
         style={styles.input}
