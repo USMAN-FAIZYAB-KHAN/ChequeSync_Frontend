@@ -1,57 +1,73 @@
 // screens/ChequeScreen.js
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  Picker,
-  Button,
-} from 'react-native';
-import ChequeCard from '../../components/ChequeCard'; // Import ChequeCard
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import ChequeCard from '../../components/ChequeCard';
 
 const chequesData = [
   { id: '1', amount: 1500, date: '2024-09-15', status: 'Pending' },
   { id: '2', amount: 2500, date: '2024-10-01', status: 'Approved' },
   { id: '3', amount: 1800, date: '2024-10-05', status: 'Rejected' },
   { id: '4', amount: 3200, date: '2024-09-20', status: 'Approved' },
-  // Add more cheque objects as needed
 ];
 
 const ChequeScreen = () => {
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [selectedMonth, setSelectedMonth] = useState('All');
 
-  // Function to filter cheques based on selected status and month
   const filterCheques = () => {
     return chequesData.filter(cheque => {
       const chequeDate = new Date(cheque.date);
-      const chequeMonth = chequeDate.getMonth() + 1; // Months are 0-indexed
-      const chequeYear = chequeDate.getFullYear();
-      
+      const chequeMonth = chequeDate.getMonth() + 1;
       const isStatusMatch = selectedStatus === 'All' || cheque.status === selectedStatus;
       const isMonthMatch = selectedMonth === 'All' || chequeMonth === parseInt(selectedMonth);
-
       return isStatusMatch && isMonthMatch;
     });
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Uploaded Cheques</Text>
+    <View className="flex-1 p-5 bg-gray-100">
+      <View className="flex-row justify-between items-center mb-5">
+        <View className="flex-1 mx-2">
+          <Text className="text-lg font-semibold mb-2">Status:</Text>
+          <View className="bg-white rounded-lg border border-gray-300 shadow-md">
+            <Picker
+              selectedValue={selectedStatus}
+              onValueChange={(itemValue) => setSelectedStatus(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="All" value="All" />
+              <Picker.Item label="Pending" value="Pending" />
+              <Picker.Item label="Approved" value="Approved" />
+              <Picker.Item label="Rejected" value="Rejected" />
+            </Picker>
+          </View>
+        </View>
 
-      
+        <View className="flex-1 mx-2">
+          <Text className="text-lg font-semibold mb-2">Month:</Text>
+          <View className="bg-white rounded-lg border border-gray-300 shadow-md">
+            <Picker
+              selectedValue={selectedMonth}
+              onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="All" value="All" />
+              <Picker.Item label="January" value="1" />
+              <Picker.Item label="February" value="2" />
+              <Picker.Item label="March" value="3" />
+              <Picker.Item label="April" value="4" />
+              {/* Add other months as needed */}
+            </Picker>
+          </View>
+        </View>
+      </View>
 
       <FlatList
         data={filterCheques()}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ChequeCard
-            id={item.id}
-            amount={item.amount}
-            date={item.date}
-            status={item.status}
-          />
+          <ChequeCard id={item.id} amount={item.amount} date={item.date} status={item.status} />
         )}
       />
     </View>
@@ -59,24 +75,9 @@ const ChequeScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
   picker: {
     height: 50,
-    width: 120,
+    width: '100%',
   },
 });
 
