@@ -5,7 +5,8 @@ import React from 'react'
 const index = () => {
 
   if (true) {
-    return <Redirect href="/(auth)/signup" />;
+    // return <Redirect href="/(auth)/signup" />;
+    return <Redirect href="/chequemanager/chequedetail" />;
   }
 
   return (

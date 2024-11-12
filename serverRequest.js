@@ -3,7 +3,6 @@ const api_url = 'http://192.168.100.11:5000/api';
 
 export const registerRequest = async (data) => {
     try {
-        console.log("E1")
         const response = await fetch(`${api_url}/users/register`, {
             method: 'POST',
             headers: {

@@ -47,6 +47,12 @@ const SignInForm = () => {
       if (typeUser.toLowerCase() == 'member') {
           router.push('/member/cheque')
       }
+      else if (typeUser.toLowerCase() == 'branchManager') {
+        pass
+      }
+      else if (typeUser.toLowerCase() == "chequeManager") {
+        router.push('chequemanager/chequedetail')
+      }
 
 
       return;
