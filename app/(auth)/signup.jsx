@@ -44,16 +44,16 @@ const SignUpForm = () => {
     let res = await registerRequest(data)
 
     if (typeof res === 'string' && res.includes('exists')) {
-      
+
       alert('User Already Exists');
       return;
     }
     if (typeof res === 'string' && res.includes('wrong')) {
-      
+
       alert('Something Went Wrong While Creating the User');
       return;
-    }  
-    
+    }
+
     else if (typeof res === 'number' && res === 201) {
       navigation.navigate('signin');
       return;

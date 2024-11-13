@@ -5,6 +5,9 @@ import React from 'react'
 const index = () => {
 
   if (true) {
+
+    // return <Redirect href="/branchmanager/chequedetail" />;
+    
     return <Redirect href="/(auth)/signup" />;
   }
 
