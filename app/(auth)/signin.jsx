@@ -9,7 +9,7 @@ import { logInRequest } from '../../serverRequest';
 
 const SignInForm = () => {
   const navigation = useNavigation();
-  
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
@@ -17,12 +17,15 @@ const SignInForm = () => {
   const handleSignIn = async () => {
     // Add your sign-in logic here
 
-    data = {
+    let data = {
       userName: username,
       password: password
     }
 
+    console.log(data)
+
     let res = await logInRequest(data)
+    console.log(res)
 
     if (typeof res === 'string' && res.includes('not_exists')) {
 
@@ -39,13 +42,16 @@ const SignInForm = () => {
       // navigation.navigate('signin');]
       const accessToken = res.data.accessToken;
       const refreshToken = res.data.refreshToken;
-      const typeUser = res.data.typeUser
-
+      const typeUser = res.data.user.type //check for member
+      
       await SecureStore.setItemAsync('accessToken', accessToken);
       await SecureStore.setItemAsync('refreshToken', refreshToken);
       
       if (typeUser.toLowerCase() == 'member') {
-          router.push('/member/cheque')
+        router.push('/member/cheque')
+      } else if (typeUser.toLowerCase() == 'branchmanager') {
+        
+        router.push('/branchmanager/chequedetail')
       }
       else if (typeUser.toLowerCase() == 'branchManager') {
         pass
