@@ -7,8 +7,9 @@ const index = () => {
   if (true) {
 
     // return <Redirect href="/branchmanager/chequedetail" />;
+    return <Redirect href="/chequemanager/addUserForm" />;
     
-    return <Redirect href="/(auth)/signup" />;
+    // return <Redirect href="/(auth)/signup" />;
   }
 
   return (

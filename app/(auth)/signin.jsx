@@ -43,14 +43,14 @@ const SignInForm = () => {
       const accessToken = res.data.accessToken;
       const refreshToken = res.data.refreshToken;
       const typeUser = res.data.user.type //check for member
-      
+      console.log(typeUser)
       await SecureStore.setItemAsync('accessToken', accessToken);
       await SecureStore.setItemAsync('refreshToken', refreshToken);
-      
+
       if (typeUser.toLowerCase() == 'member') {
         router.push('/member/cheque')
       } else if (typeUser.toLowerCase() == 'branchmanager') {
-        
+        console.log("hhh")
         router.push('/branchmanager/chequedetail')
       }
 
