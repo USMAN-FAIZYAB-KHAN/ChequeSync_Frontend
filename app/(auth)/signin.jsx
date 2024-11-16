@@ -53,6 +53,12 @@ const SignInForm = () => {
         console.log("hhh")
         router.push('/branchmanager/chequedetail')
       }
+      else if (typeUser.toLowerCase() == 'branchManager') {
+        pass
+      }
+      else if (typeUser.toLowerCase() == "chequeManager") {
+        router.push('chequemanager/chequedetail')
+      }
 
 
       return;

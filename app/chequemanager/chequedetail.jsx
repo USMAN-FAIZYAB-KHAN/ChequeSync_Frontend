@@ -233,7 +233,7 @@ const MessageList = () => {
           ]}
           disabled={selectedMessages.length === 0}
         >
-          <Text style={styles.buttonText}>Approve</Text>
+          <Text style={styles.buttonText}>Receive</Text>
         </TouchableOpacity>
       </View>
 

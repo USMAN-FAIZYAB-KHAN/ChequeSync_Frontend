@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+// import { LinearGradient } from 'expo-linear-gradient';
 
 const styles = StyleSheet.create({
   tabBar: {
@@ -42,18 +42,7 @@ const styles = StyleSheet.create({
 
 const Layout = () => {
   return (
-    <LinearGradient
-      // colors={['#8ec5fc', '#e0c3fc']}
-      // start={{ x: 0, y: 0 }}
-      // end={{ x: 1, y: 1 }}
-      // style={{ flex: 1 }}
-      colors={['#000000', '#3C3D37']}  // Example new colors
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
-
-    >
-      <Tabs
+    <Tabs
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color }) => {
             let iconName;
@@ -96,7 +85,19 @@ const Layout = () => {
           options={{ title: 'Notification' }}
         />
       </Tabs>
-    </LinearGradient>
+    // <LinearGradient
+    //   // colors={['#8ec5fc', '#e0c3fc']}
+    //   // start={{ x: 0, y: 0 }}
+    //   // end={{ x: 1, y: 1 }}
+    //   // style={{ flex: 1 }}
+    //   colors={['#000000', '#3C3D37']}  // Example new colors
+    //   start={{ x: 0, y: 0 }}
+    //   end={{ x: 1, y: 1 }}
+    //   style={{ flex: 1 }}
+
+    // >
+      
+    // </LinearGradient>
   );
 };
 
