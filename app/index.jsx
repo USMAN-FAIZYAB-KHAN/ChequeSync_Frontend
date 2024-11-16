@@ -6,7 +6,8 @@ const index = () => {
 
   if (true) {
     // return <Redirect href="/(auth)/signup" />;
-    return <Redirect href="/chequemanager/chequedetail" />;
+    // return <Redirect href="/chequemanager/chequedetail" />;
+    return <Redirect href="/branchmanager/chequedetail" />;
   }
 
   return (

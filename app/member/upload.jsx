@@ -134,24 +134,26 @@ const UploadScreen = () => {
         </TouchableOpacity>
       )}
 
-<View style={styles.buttonContainer}>
-  <View style={styles.orientationHintContainer}>
-    <FontAwesome5
-      name="mobile-alt"
-      size={30}
-      color="#bbb"
-      style={[styles.horizontalIndicator, { transform: [{ rotate: "90deg" }] }]}
-    />
-    <Text style={styles.placeholderText}>
-      Please take a clear horizontal picture of the cheque
-    </Text>
-  </View>
+      <View style={styles.buttonContainer}>
+        <View style={styles.orientationHintContainer}>
+          <FontAwesome5
+            name="mobile-alt"
+            size={30}
+            color="#bbb"
+            style={[
+              styles.horizontalIndicator,
+              { transform: [{ rotate: "90deg" }] },
+            ]}
+          />
+          <Text style={styles.placeholderText}>
+            Please take a clear horizontal picture of the cheque
+          </Text>
+        </View>
 
-  <TouchableOpacity onPress={takePhoto} style={styles.iconButton}>
-    <FontAwesome5 name="camera" size={24} color="#fff" />
-  </TouchableOpacity>
-</View>
-
+        <TouchableOpacity onPress={takePhoto} style={styles.iconButton}>
+          <FontAwesome5 name="camera" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
       <Modal
         visible={showFullScreen}
@@ -250,46 +252,44 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
     paddingHorizontal: 10,
     marginVertical: 10,
   },
-  
+
   orientationHintContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent:'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
-    flexWrap: 'wrap', // Allows text to wrap to a second line
+    flexWrap: "wrap", // Allows text to wrap to a second line
     paddingRight: 3,
   },
-  
+
   horizontalIndicator: {
-    alignSelf: 'center', // Centers the icon vertically with text
+    alignSelf: "center", // Centers the icon vertically with text
   },
-  
+
   placeholderText: {
-    color: '#bbb',
+    color: "#bbb",
     fontSize: 14,
     lineHeight: 18,
     flexShrink: 1,
-    textAlignVertical: 'center', // Centers text vertically with the icon
+    textAlignVertical: "center", // Centers text vertically with the icon
   },
-  
+
   iconButton: {
-    backgroundColor: '#6200ee',
+    backgroundColor: "#6200ee",
     padding: 15,
     borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     width: 60,
     height: 60,
   },
-  
-  
 
   placeholderText: {
     textAlign: "center",
