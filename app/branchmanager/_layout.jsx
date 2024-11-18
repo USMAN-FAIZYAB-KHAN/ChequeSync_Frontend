@@ -40,47 +40,57 @@ const styles = StyleSheet.create({
 const Layout = () => {
   return (
     <Tabs
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color }) => {
-          let iconName;
-          let iconStyle = focused ? styles.activeTab : styles.inactiveTab;
+  screenOptions={({ route }) => ({
+    tabBarIcon: ({ focused, color }) => {
+      let iconName;
+      let iconStyle = focused ? styles.activeTab : styles.inactiveTab;
 
-          if (route.name === 'chequedetail') {
-            iconName = 'money-check-alt';
-          } else if (route.name === 'chequestatus') {
-            iconName = 'user-friends';
-          } else if (route.name === 'notification') {
-            iconName = 'bell';
-          }
+      if (route.name === 'chequedetail') {
+        iconName = 'money-check-alt';
+      } else if (route.name === 'chequestatus') {
+        iconName = 'user-friends';
+      } else if (route.name === 'notification') {
+        iconName = 'bell';
+      }
 
-          return (
-            <View style={[styles.tabItem, iconStyle]}>
-              <FontAwesome5 name={iconName} size={22} color={focused ? '#ffffff' : color} />
-              <Text style={{ color: focused ? '#ffffff' : color, fontSize: 12, marginTop: 5 }}>
-                {route.name.charAt(0).toUpperCase() + route.name.slice(1)}
-              </Text>
-            </View>
-          );
-        },
-        tabBarActiveTintColor: '#ffffff',
-        tabBarInactiveTintColor: '#888',
-        tabBarStyle: styles.tabBar,
-        tabBarShowLabel: false,
-      })}
-    >
-      <Tabs.Screen
-        name="chequedetail"
-        options={{ title: 'Cheque Detail' }}
-      />
-      <Tabs.Screen
-        name="memberscheque"
-        options={{ title: 'Members Cheque' }}
-      />
-      <Tabs.Screen
-        name="notification"
-        options={{ title: 'Notification' }}
-      />
-    </Tabs>
+      return (
+        <View style={[styles.tabItem, iconStyle]}>
+          <FontAwesome5 name={iconName} size={22} color={focused ? '#ffffff' : color} />
+          <Text style={{ color: focused ? '#ffffff' : color, fontSize: 12, marginTop: 5 }}>
+            {route.name.charAt(0).toUpperCase() + route.name.slice(1)}
+          </Text>
+        </View>
+      );
+    },
+    tabBarActiveTintColor: '#ffffff',
+    tabBarInactiveTintColor: '#888',
+    tabBarStyle: styles.tabBar,
+    tabBarShowLabel: false,
+  })}
+>
+  <Tabs.Screen
+    name="chequedetail"
+    options={{
+      title: '',
+      headerShown: false, // Hide the top header (navbar)
+    }}
+  />
+  <Tabs.Screen
+    name="memberscheque"
+    options={{
+      title: 'Members Cheque',
+      headerShown: false, // Hide the top header (navbar)
+    }}
+  />
+  <Tabs.Screen
+    name="notification"
+    options={{
+      title: 'Notification',
+      headerShown: false, // Hide the top header (navbar)
+    }}
+  />
+</Tabs>
+
   );
 };
 

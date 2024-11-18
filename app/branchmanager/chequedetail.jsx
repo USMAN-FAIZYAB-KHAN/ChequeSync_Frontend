@@ -11,16 +11,23 @@ import {
   FlatList,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 
 const memberLogo = require("../../assets/member-logo.png");
 
 const MessageList = () => {
-  const [selectedMessage, setSelectedMessage] = useState(null);
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [capturedImage, setCapturedImage] = useState(false);
+  const [rejectedImages, setRejectedImages] = useState({});
+  const [messageInputVisible, setMessageInputVisible] = useState(false);
+  const [customMessage, setCustomMessage] = useState("");
+  const [dummyMessages, setDummyMessages] = useState([]);
+  const [defaultView, setDefaultView] = useState(true); // Default view control
+  const [selectedMessage, setSelectedMessage] = useState(null);
 
   useEffect(() => {
     const dummyData = {
@@ -147,44 +154,37 @@ const MessageList = () => {
         },
       ],
     };
-    
-
+    const dummyMsgs = [
+      "Cheque needs verification.",
+      "Invalid amount, please resubmit.",
+      "Cheque rejected due to errors.",
+      "Incorrect account details provided.",
+    ];
     setMessages(dummyData.cheques);
     setFilteredMessages(dummyData.cheques);
+    setDummyMessages(dummyMsgs);
   }, []);
 
-  const handleSelectAll = () => {
-    if (isSelectAll) {
-      setSelectedMessages([]);
-    } else {
-      setSelectedMessages(messages.map((msg) => msg._id));
+  const takePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      return null;
     }
-    setIsSelectAll(!isSelectAll);
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setCapturedImage(result.assets[0].uri); // Store the captured photo URI
+      setMessageInputVisible(true); // Show the message input after photo capture
+      setDefaultView(false); // Disable default view
+      return result.assets[0].uri;
+    }
+    return null;
   };
 
-  const handleSelectMessage = (messageId) => {
-    if (isSelectAll) {
-      // Toggle selection if "Select All" is active
-      setSelectedMessages((prevSelected) =>
-        prevSelected.includes(messageId)
-          ? prevSelected.filter((id) => id !== messageId)
-          : [...prevSelected, messageId]
-      );
-    } else {
-      // Open popup if "Select All" is not active
-      const message = messages.find((msg) => msg._id === messageId);
-      setSelectedMessage(message);
-    }
-  };
-
-  const handleReceive = async () => {
-    // Bulk "Receive" action
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
-    );
-    setSelectedMessages([]);
-    setIsSelectAll(false);
-  };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -194,23 +194,88 @@ const MessageList = () => {
     setFilteredMessages(filtered);
   };
 
-  const handleReceiveSingle = (messageId) => {
-    // Handle single message "Receive"
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => msg._id !== messageId)
+  // Toggle "Select All" functionality
+const handleSelectAll = () => {
+  setIsSelectAll((prev) => !prev);
+  if (isSelectAll) {
+    setSelectedMessages([]); // If Select All is deactivated, clear selected messages
+  } else {
+    setSelectedMessages(messages.map((msg) => msg._id)); // Select all messages
+  }
+};
+
+// Handle message click (for selection/deselection or opening modal)
+const handleToggleMessage = (id) => {
+  if (isSelectAll) {
+    // If "Select All" is active, just select/deselect the message, no modal
+    setSelectedMessages((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((msgId) => msgId !== id)
+        : [...prevSelected, id]
     );
+  } else {
+    // If "Select All" is not active, open the modal for the selected message
+    const selectedMsg = messages.find((msg) => msg._id === id);
+    setSelectedMessage(selectedMsg); // Open modal for the selected message
+  }
+};
+
+// Select a dummy message
+const handleSelectDummyMessage = (msg) => {
+  setCustomMessage(msg); // Set the selected dummy message in the input box
+};
+
+// Handle receiving single message (remove it from the list)
+const handleReceiveSingle = (messageId) => {
+  setMessages((prevMessages) =>
+    prevMessages.filter((msg) => msg._id !== messageId)
+  );
+  setSelectedMessage(null); // Close modal after receiving message
+};
+
+// Handle receiving multiple messages (remove selected messages from the list)
+const handleReceive = () => {
+  setMessages((prevMessages) =>
+    prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+  );
+  setSelectedMessages([]); // Clear selected messages
+  setIsSelectAll(false); // Deactivate Select All
+};
+  const handleRejectSingle = async (messageId) => {
+    const photoUri = await takePhoto();
+    if (photoUri) {
+      setRejectedImages((prev) => ({
+        ...prev,
+        [messageId]: photoUri,
+      }));
+      setCapturedImage(true);
+    }
+  };
+
+  const handleSubmit = () => {
+    setCapturedImage(false);
+    setCustomMessage("");
+    setMessageInputVisible(false);
     setSelectedMessage(null);
   };
 
-  const handleRejectSingle = (messageId) => {
-    // Handle single message "Reject"
+  const closeModal = () => {
     setSelectedMessage(null);
+    setCapturedImage(false);
+    setMessageInputVisible(false);
+    setCustomMessage("");
+    setDefaultView(true); // Reset to default view
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.searchBarContainer}>
-        <MaterialIcons name="search" size={20} color="#333" style={styles.searchIcon} />
+        <MaterialIcons
+          name="search"
+          size={20}
+          color="#333"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchBar}
           placeholder="Search by sender name"
@@ -218,9 +283,11 @@ const MessageList = () => {
           onChangeText={handleSearch}
         />
       </View>
-
       <View style={styles.selectAllContainer}>
-        <TouchableOpacity onPress={handleSelectAll} style={styles.selectAllButton}>
+        <TouchableOpacity
+          onPress={handleSelectAll}
+          style={styles.selectAllButton}
+        >
           <Text style={styles.selectAllText}>
             {isSelectAll ? "Deselect All" : "Select All"}
           </Text>
@@ -229,7 +296,10 @@ const MessageList = () => {
           onPress={handleReceive}
           style={[
             styles.receiveButton,
-            { backgroundColor: selectedMessages.length === 0 ? "#A9A9A9" : "#288E0F" },
+            {
+              backgroundColor:
+                selectedMessages.length === 0 ? "#A9A9A9" : "#288E0F",
+            },
           ]}
           disabled={selectedMessages.length === 0}
         >
@@ -242,11 +312,21 @@ const MessageList = () => {
         keyExtractor={(item) => item._id}
         renderItem={({ item: msg }) => (
           <TouchableOpacity
-            onPress={() => handleSelectMessage(msg._id)}
-            style={[styles.messageCard, selectedMessages.includes(msg._id) && styles.selectedMessageCard]}
+            onPress={() =>
+              handleToggleMessage(msg._id, selectedMessages.includes(msg._id))
+            }
+            style={[
+              styles.messageCard,
+              selectedMessages.includes(msg._id) && styles.selectedMessage,
+            ]}
           >
             {selectedMessages.includes(msg._id) && (
-              <MaterialIcons name="check-circle" size={24} color="#26CC00" style={styles.checkIcon} />
+              <MaterialIcons
+                name="check-circle"
+                size={24}
+                color="#26CC00"
+                style={styles.checkIcon}
+              />
             )}
             <View style={styles.avatarContainer}>
               <Image style={styles.avatar} source={memberLogo} />
@@ -262,33 +342,83 @@ const MessageList = () => {
 
       {selectedMessage && (
         <Modal
-          animationType="fade"
+          animationType="slide"
           transparent={true}
           visible={!!selectedMessage}
-          onRequestClose={() => setSelectedMessage(null)}
+          onRequestClose={closeModal}
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setSelectedMessage(null)}
-              >
-                <MaterialIcons name="close" size={24} color="#555" />
+              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <MaterialIcons name="close" size={20} color="#333" />
               </TouchableOpacity>
-              <Image source={{ uri: selectedMessage.image }} style={styles.chequeImage} />
-              <Text style={styles.modalMessage}>{selectedMessage.message}</Text>
-              <View style={styles.modalButtons}>
-                <Button
-                  title="Receive"
-                  onPress={() => handleReceiveSingle(selectedMessage._id)}
-                  color="#4CAF50"
-                />
-                <Button
-                  title="Reject"
-                  onPress={() => handleRejectSingle(selectedMessage._id)}
-                  color="#F44336"
-                />
-              </View>
+
+              <Image
+                source={{
+                  uri:
+                    rejectedImages[selectedMessage._id] ||
+                    selectedMessage.image,
+                }}
+                style={styles.chequeImage}
+              />
+
+              {defaultView ? (
+                <>
+                  <Text style={styles.modalMessage}>
+                    {selectedMessage.message}
+                  </Text>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.buttonStyle}
+                      onPress={() => handleReceiveSingle(selectedMessage._id)}
+                    >
+                      <Text style={styles.buttonText}>Approve</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.buttonStyle, styles.rejectButtonStyle]}
+                      onPress={() => handleRejectSingle(selectedMessage._id)}
+                    >
+                      <Text style={styles.buttonText}>Reject</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <View>
+                  <Text style={styles.messageHeading}>
+                    Type or Select a Message:
+                  </Text>
+                  <View style={styles.dummyMessagesContainer}>
+                    {dummyMessages.map((msg, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => handleSelectDummyMessage(msg)}
+                        style={styles.dummyMessage}
+                      >
+                        <Text>{msg}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Type a custom message..."
+                    value={customMessage}
+                    onChangeText={setCustomMessage}
+                  />
+                  <TouchableOpacity
+                    style={[
+                      styles.buttonStyle,
+                      { alignSelf: "center", marginTop: 10 },
+                    ]}
+                    onPress={handleSubmit}
+                  >
+                    <Text
+                      style={[styles.submitButton, styles.submitButtonText]}
+                    >
+                      Submit
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
         </Modal>
@@ -298,73 +428,259 @@ const MessageList = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#F9F9F9",
+  },
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 20,
+    backgroundColor: "#FFF",
+    borderRadius: 30,
+    paddingHorizontal: 15,
+    elevation: 5,
   },
-  searchIcon: { paddingRight: 10 },
+  searchIcon: {
+    paddingRight: 10,
+    color: "#888",
+  },
   searchBar: {
     flex: 1,
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 50,
+    height: 45,
+    fontSize: 16,
+    color: "#333",
+    borderRadius: 30,
     paddingHorizontal: 10,
+    borderColor: "none",
   },
   selectAllContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  selectAllButton: { padding: 10, backgroundColor: "#288E0F", borderRadius: 50 },
-  selectAllText: { color: "#fff" },
+  selectAllButton: {
+    paddingVertical: 12,
+    borderRadius: 25,
+    backgroundColor: "green",
+    alignItems: "center",
+    elevation: 3,
+    flex: 0.45,
+  },
+  selectAllText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   receiveButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 50,
+    paddingVertical: 12,
+    borderRadius: 25,
+    backgroundColor: "#288E0F",
+    alignItems: "center",
+    elevation: 3,
+    flex: 0.45,
   },
-  buttonText: { color: "#fff", fontWeight: "bold" },
+  buttonText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   messageCard: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    backgroundColor: "#CBCFD2",
-    borderRadius: 8,
-    marginBottom: 10,
+    marginVertical: 8,
+    padding: 15,
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    elevation: 3,
   },
-  selectedMessageCard: { borderWidth: 2, borderColor: "#26CC00" },
-  checkIcon: { marginRight: 10 },
+  selectedMessage: {
+    borderColor: "#26CC00",
+    borderWidth: 2,
+  },
+  checkIcon: {
+    marginRight: 15,
+    color: "#26CC00",
+  },
   avatarContainer: {
-    backgroundColor: "#F2F2F2",
-    padding: 7,
-    borderRadius: 25,
-    marginRight: 10,
+    padding: 12,
+    backgroundColor: "#E9E9E9",
+    borderRadius: 30,
+    marginRight: 18,
   },
-  avatar: { width: 30, height: 30, borderRadius: 20 },
-  messageContent: { flex: 1 },
-  senderName: { color: "#333", fontWeight: "bold" },
-  messageText: { color: "#333" },
-  messageTime: { color: "#333" },
+  avatar: {
+    width: 35,
+    height: 35,
+    borderRadius: 22,
+  },
+  messageContent: {
+    flex: 1,
+  },
+  senderName: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 5,
+  },
+  messageText: {
+    fontSize: 12, // Reduce font size
+    color: "#555",
+    maxWidth: "70%", // Optionally, you can reduce the width to make it more compact
+  },
+  messageTime: {
+    fontSize: 12,
+    color: "#AAA",
+    alignSelf: "flex-start",
+  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    padding: 25,
+    elevation: 10,
+    // alignItems: "center",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "#EEE",
+    borderRadius: 20,
+    padding: 5,
+  },
+  chequeImage: {
+    width: "90%",
+    height: 180,
+    borderRadius: 15,
+    marginTop: 10,
+    marginBottom: 20,
+    resizeMode: "cover",
+    alignSelf: "center",
+  },
+  modalMessage: {
+    fontSize: 18,
+    color: "#333",
+    marginBottom: 10,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 15,
+  },
+  buttonStyle: {
+    flex: 0.48,
+    paddingVertical: 12,
+    borderRadius: 25,
+    alignItems: "center",
+    backgroundColor: "#4CAF50", // Default green button
+  },
+  rejectButtonStyle: {
+    backgroundColor: "#F44336", // Reject red button
+  },
+
+  messageHeading: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#4A4A4A",
+    marginBottom: 10,
+  },
+  dummyMessagesContainer: {
+    flexDirection: "column",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    width: "100%",
+  },
+
+  dummyMessage: {
+    backgroundColor: "#F9F9F9",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    marginBottom: 10,
+    marginRight: 10,
+    width: "100%",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "green",
+    justifyContent: "center",
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: "green",
+    borderRadius: 20,
+    padding: 12,
+    marginTop: 10,
+    backgroundColor: "#FFF",
+    fontSize: 14,
+    color: "#444",
+    width: "100%",
+    marginBottom: 10,
+  },
+  photoButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 25,
+    backgroundColor: "#FFB74D",
+    borderRadius: 50,
+    alignItems: "center",
+    marginVertical: 20,
     width: "80%",
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
+    alignSelf: "center",
+    elevation: 5,
+  },
+  photoButtonText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  submitButton: {
+    paddingHorizontal: 60,
+    paddingBottom: 30,
+    borderRadius: 50,
+    alignItems: "center",
+    alignSelf: "center",
+    elevation: 5,
+  },
+  submitButtonText: {
+    color: "#FFF",
+    fontSize: 17,
+    fontWeight: "bold",
+  },
+  modalContentWithMessage: {
+    width: "90%",
+    padding: 30,
+    borderRadius: 20,
+    backgroundColor: "#FFF",
+    alignItems: "center",
+    elevation: 15,
+  },
+  messageInputSection: {
+    marginTop: 20,
+    width: "100%",
     alignItems: "center",
   },
-  closeButton: { position: "absolute", top: 10, right: 10 },
-  chequeImage: { width: 200, height: 200, marginBottom: 15, borderRadius: 10 },
-  modalMessage: { fontSize: 16, textAlign: "center", marginBottom: 20 },
-  modalButtons: { flexDirection: "row", justifyContent: "space-around", width: "100%" },
+  customMessage: {
+    width: "80%",
+    height: 100,
+    padding: 10,
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    fontSize: 14,
+    color: "#555",
+    borderWidth: 1,
+    borderColor: "#DDD",
+    marginBottom: 20,
+  },
 });
 
 export default MessageList;
