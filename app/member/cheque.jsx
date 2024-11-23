@@ -1,8 +1,13 @@
 // screens/ChequeScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ChequeCard from '../../components/ChequeCard';
+import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
+
+
+//Find id of the user
+const _id = "67350024a70877fe03ff5052"
 
 const chequesData = [
   { id: '1', amount: 1500, date: '2024-09-15', status: 'Pending' },
@@ -11,9 +16,27 @@ const chequesData = [
   { id: '4', amount: 3200, date: '2024-09-20', status: 'Approved' },
 ];
 
+
+
 const ChequeScreen = () => {
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [selectedMonth, setSelectedMonth] = useState('All');
+  const socket = useSocket()
+  
+  useEffect(()=>{
+    if (socket) {
+
+      // It is used to register the user in the socket 
+      socket.emit("registerUser", {userId: _id});
+      //Used for confirmation
+      socket.on('receiveConfirmation', (message)=>console.log(message))
+
+      // Handle socket errors
+      socket.on("error", (error) => {
+        console.error("Socket.IO Error:", error);
+      });
+    }
+    },[])
 
   const filterCheques = () => {
     return chequesData.filter(cheque => {

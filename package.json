@@ -31,7 +31,8 @@
     "react-native-screens": "3.31.1",
     "react-native-sensitive-info": "^5.5.8",
     "react-native-web": "~0.19.10",
-    "expo-secure-store": "~13.0.2"
+    "socket.io-client": "^4.8.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

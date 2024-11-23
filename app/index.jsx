@@ -1,22 +1,43 @@
-import { View, Text } from 'react-native'
-import { Redirect } from 'expo-router';
-import React from 'react'
+import { View, Text } from "react-native";
+import { Redirect } from "expo-router";
+import React, { useEffect, useState } from "react";
 
-const index = () => {
 
-  if (true) {
+const Index = () => {
+  const [shouldRedirect, setShouldRedirect] = useState(true);
+  const [socketConnected, setSocketConnected] = useState(false);
 
-    // return <Redirect href="/branchmanager/chequedetail" />;
-    return <Redirect href="/chequemanager/addUserForm" />;
-    
-    // return <Redirect href="/(auth)/signup" />;
+  useEffect(() => {
+    console.log("Main layout loaded");
+
+    // Initialize the socket
+    const socket = initializeSocket();
+
+    // Listen for socket connection event
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+      setSocketConnected(true);
+    });
+
+
+  }, []);
+
+  if (shouldRedirect) {
+    return <Redirect href="/(auth)/signin" />;
   }
 
   return (
     <View>
-      <Text>index</Text>
-    </View>
-  )
-}
+      <Text>Index</Text>
+      {/* Example button or logic to trigger redirection */}
+      <Text onPress={() => setShouldRedirect(true)}>Go to Signin</Text>
 
-export default index
+      {/* Display socket connection status */}
+      <Text>
+        Socket Status: {socketConnected ? "Connected" : "Disconnected"}
+      </Text>
+    </View>
+  );
+};
+
+export default Index;

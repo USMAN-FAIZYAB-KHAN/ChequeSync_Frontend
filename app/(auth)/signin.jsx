@@ -1,24 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from '@react-navigation/native';
 
 
+
+
 import { logInRequest } from '../../serverRequest';
+
+
 
 const SignInForm = () => {
   const navigation = useNavigation();
 
-  const [username, setUsername] = useState('');
+
+  const [userEmail, setUserEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  
+
 
   const handleSignIn = async () => {
     // Add your sign-in logic here
 
     let data = {
-      userName: username,
+      userEmail: userEmail,
       password: password
     }
 
@@ -44,9 +51,9 @@ const SignInForm = () => {
       const refreshToken = res.data.refreshToken;
       const typeUser = res.data.user.type //check for member
       console.log(typeUser)
-      await SecureStore.setItemAsync('accessToken', accessToken);
-      await SecureStore.setItemAsync('refreshToken', refreshToken);
-
+      // await SecureStore.setItemAsync('accessToken', accessToken);
+      // await SecureStore.setItemAsync('refreshToken', refreshToken);
+      // await SecureStore.setItemAsync('userId', res.data.user._id);
       if (typeUser.toLowerCase() == 'member') {
         router.push('/member/cheque')
       } else if (typeUser.toLowerCase() == 'branchmanager') {
@@ -64,7 +71,7 @@ const SignInForm = () => {
       return;
     }
 
-    console.log('username:', username);
+    console.log('username:', userEmail);
     console.log('Password:', password);
   };
 
@@ -74,9 +81,9 @@ const SignInForm = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="username"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Email"
+        value={userEmail}
+        onChangeText={setUserEmail}
         keyboardType="username-address"
         autoCapitalize="none"
       />

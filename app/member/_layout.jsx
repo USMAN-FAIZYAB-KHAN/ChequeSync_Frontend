@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 // import { LinearGradient } from 'expo-linear-gradient';
+import { SocketProvider } from "../../context/socket.js"; // Adjust path as necessary
+import ChequeScreen from "./cheque.jsx";
 
 const styles = StyleSheet.create({
   tabBar: {
@@ -24,9 +26,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#CC2B52',
     padding: 10,
     borderTopLeftRadius: 15,
-    
+
     borderBottomLeftRadius: 25,
-  borderBottomRightRadius: 35,
+    borderBottomRightRadius: 35,
     shadowColor: '#D4BEE4',
     // shadowOffset: { width: 5, height: 5 },
     shadowOpacity: 0.4,
@@ -41,8 +43,11 @@ const styles = StyleSheet.create({
 });
 
 const Layout = () => {
+
   return (
-    <Tabs
+    <SocketProvider>
+      {/* <ChequeScreen/> */}
+      <Tabs
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color }) => {
             let iconName;
@@ -85,6 +90,7 @@ const Layout = () => {
           options={{ title: 'Notification' }}
         />
       </Tabs>
+    </SocketProvider>
     // <LinearGradient
     //   // colors={['#8ec5fc', '#e0c3fc']}
     //   // start={{ x: 0, y: 0 }}
@@ -96,7 +102,7 @@ const Layout = () => {
     //   style={{ flex: 1 }}
 
     // >
-      
+
     // </LinearGradient>
   );
 };
