@@ -2,24 +2,35 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  Button,
   Image,
-  StyleSheet,
   TouchableOpacity,
   Modal,
-  TextInput,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Dimensions } from "react-native";
-
-const screenWidth = Dimensions.get("window").width;
 
 const UploadScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFullScreen, setShowFullScreen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("");
-  const [amount, setAmount] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   const pickImage = async () => {
     const permissionResult =
@@ -40,7 +51,27 @@ const UploadScreen = () => {
       setSelectedImage(result.assets[0].uri);
     }
   };
+  const handleSubmit = async () => {
+    if (!selectedMonth) {
+      alert("Please select a month!");
+      return;
+    }
 
+    let result = await saveChequeRequest(
+      monthNames[selectedMonth],
+      selectedImage
+    );
+
+    console.log(result);
+
+    if (result.statusCode === 201) {
+      setSelectedImage(null);
+      setSelectedMonth("");
+      setShowFullScreen(false);
+      // redirect to the cheque page
+      router.push("/member/cheque");
+    }
+  };
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -63,317 +94,115 @@ const UploadScreen = () => {
     setSelectedImage(null);
   };
 
-  const handleSubmit = async () => {
-    if (!selectedMonth) {
-      alert('Please select a month!');
-      return;
-    }
-    
-    let result = await saveChequeRequest(monthNames[selectedMonth], selectedImage);
-
-    console.log(result);
-
-    if (result.statusCode === 201) {
-      setSelectedImage(null);
-      setSelectedMonth("");
-      setShowFullScreen(false);
-      // redirect to the cheque page
-      router.push('/member/cheque');
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Upload Cheque Image</Text>
-
-      {/* Input fields in the same row */}
-      <View style={styles.inputRow}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Select Month</Text>
+    <View className="flex-1 items-center p-5 bg-gray-100">
+      <View className="flex-row items-center justify-around w-full mb-4">
+        <Text className="text-base font-medium ">Select Month</Text>
+        <View
+          className={`border-2 rounded-lg pl-2  ${
+            isFocused ? "border-blue-500" : "border-gray-300"
+          } bg-white w-1/2 overflow-hidden`}
+        >
           <Picker
             selectedValue={selectedMonth}
             onValueChange={(itemValue) => setSelectedMonth(itemValue)}
-            style={styles.picker}
+            className="h-12 text-gray-700 "
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           >
             <Picker.Item label="Select month" value="" />
-            <Picker.Item label="January" value="January" />
-            <Picker.Item label="February" value="February" />
+            {months.map((month, index) => (
+              <Picker.Item key={index} label={month} value={month} />
+            ))}
           </Picker>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Enter Amount</Text>
-          <View style={styles.amountInputContainer}>
-            <TextInput
-              style={styles.textInput}
-              keyboardType="numeric"
-              placeholder="Enter amount"
-              value={amount}
-              onChangeText={(text) => setAmount(text)}
-            />
-            <Text style={styles.currencyLabel}>Rs</Text>
-          </View>
         </View>
       </View>
 
       {selectedImage ? (
-        <View style={styles.imageContainer}>
+        <View className="items-center mt-5 w-full">
+          {/* Image Display with Touchable */}
           <TouchableOpacity onPress={() => setShowFullScreen(true)}>
-            <Image source={{ uri: selectedImage }} style={styles.image} />
+            <Image
+              source={{ uri: selectedImage }}
+              className="w-80 h-48 rounded-md mb-4"
+            />
           </TouchableOpacity>
-          <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity onPress={removeImage} style={styles.removeButton}>
+
+          {/* Buttons in Vertical Layout */}
+          <View className="w-full mt-4 items-center ">
+            <TouchableOpacity
+              onPress={removeImage}
+              className="flex-row bg-red-500 p-4 rounded-md items-center justify-center w-80 mb-4"
+            >
               <FontAwesome5 name="trash" size={24} color="#fff" />
+              <Text className="text-white text-center font-bold ml-4">
+                Remove
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSubmit}
-              style={styles.submitButton}
+              className="bg-blue-600 p-4 rounded-md items-center justify-center shadow-md w-80"
             >
-              <Text style={styles.submitButtonText}>Submit</Text>
+              <Text className="text-white font-bold">Submit</Text>
             </TouchableOpacity>
           </View>
         </View>
       ) : (
-        <TouchableOpacity
-          onPress={pickImage}
-          style={styles.placeholderContainer}
-        >
-          <Text style={styles.placeholderText}>
-            Click to upload or drag and drop
-          </Text>
-          <FontAwesome5 name="cloud-upload-alt" size={40} color="#bbb" />
+        <>
+          <TouchableOpacity
+            onPress={pickImage}
+            className="w-full h-52 border-gray-400 rounded-lg flex items-center justify-center border-dashed border-2"
+          >
+            <FontAwesome5 name="cloud-upload-alt" size={40} color="#bbb" />
+            <Text className="text-gray-500 text-center mb-2 text-base">
+              Click to upload or drag and drop
+            </Text>
+            
+            <Text className="text-gray-400 text-sm">
+              SVG, PNG, JPG or GIF (MAX. 800x400px)
+            </Text>
+          </TouchableOpacity>
 
-          <Text style={styles.placeholderSubText}>
-            SVG, PNG, JPG or GIF (MAX. 800x400px)
-          </Text>
-        </TouchableOpacity>
+          <View className="flex items-center w-full mt-4">
+            {/* Show Take Photo Button Only When Image is Not Selected */}
+            <TouchableOpacity
+              onPress={takePhoto}
+              className="bg-blue-600 items-center justify-center w-full rounded-lg h-16 mb-4 shadow-md active:bg-blue-700"
+            >
+              <View className="flex-row items-center">
+                <FontAwesome5 name="camera" size={24} color="#fff" />
+                <Text className="text-white text-lg ml-4">Take Photo</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Text for Instructions */}
+            <Text className="text-gray-500 text-base text-center">
+              Please take a clear horizontal picture of the cheque
+            </Text>
+          </View>
+        </>
       )}
-
-      <View style={styles.buttonContainer}>
-        <View style={styles.orientationHintContainer}>
-          <FontAwesome5
-            name="mobile-alt"
-            size={30}
-            color="#bbb"
-            style={[
-              styles.horizontalIndicator,
-              { transform: [{ rotate: "90deg" }] },
-            ]}
-          />
-          <Text style={styles.placeholderText}>
-            Please take a clear horizontal picture of the cheque
-          </Text>
-        </View>
-
-        <TouchableOpacity onPress={takePhoto} style={styles.iconButton}>
-          <FontAwesome5 name="camera" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
 
       <Modal
         visible={showFullScreen}
         transparent={true}
         onRequestClose={() => setShowFullScreen(false)}
       >
-        <View style={styles.fullScreenContainer}>
+        <View className="flex-1 items-center justify-center bg-black bg-opacity-80">
           <TouchableOpacity
-            style={styles.closeButton}
+            className="absolute top-10 right-5 p-2 bg-white rounded-full"
             onPress={() => setShowFullScreen(false)}
           >
             <FontAwesome5 name="times" size={24} color="#000" />
           </TouchableOpacity>
           <Image
             source={{ uri: selectedImage }}
-            style={styles.fullScreenImage}
+            className="w-full h-4/5 object-contain"
           />
         </View>
       </Modal>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#f5f5f5",
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  inputRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 15,
-  },
-  inputContainer: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  picker: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 5,
-  },
-  amountInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#e0e0e0",
-    borderRadius: 5,
-    paddingRight: 10,
-  },
-  textInput: {
-    flex: 1,
-    height: 60,
-    padding: 10,
-  },
-  currencyLabel: {
-    fontSize: 16,
-    marginLeft: 5,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    width: "100%",
-    marginBottom: 20,
-  },
-  iconButton: {
-    backgroundColor: "#6200ee",
-    padding: 15,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    width: 60,
-    height: 60,
-    marginHorizontal: 10,
-  },
-  placeholderContainer: {
-    width: "100%",
-    height: 200,
-    borderWidth: 1,
-    borderColor: "#bbb",
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f2f2f2",
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    paddingHorizontal: 10,
-    marginVertical: 10,
-  },
-
-  orientationHintContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    flexWrap: "wrap", // Allows text to wrap to a second line
-    paddingRight: 3,
-  },
-
-  horizontalIndicator: {
-    alignSelf: "center", // Centers the icon vertically with text
-  },
-
-  placeholderText: {
-    color: "#bbb",
-    fontSize: 14,
-    lineHeight: 18,
-    flexShrink: 1,
-    textAlignVertical: "center", // Centers text vertically with the icon
-  },
-
-  iconButton: {
-    backgroundColor: "#6200ee",
-    padding: 15,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    width: 60,
-    height: 60,
-  },
-
-  placeholderText: {
-    textAlign: "center",
-    color: "#bbb",
-    fontSize: 16,
-    // marginTop: 10,
-  },
-  placeholderSubText: {
-    color: "#bbb",
-    fontSize: 12,
-  },
-  imageContainer: {
-    marginTop: 20,
-    alignItems: "center",
-    width: screenWidth,
-  },
-  image: {
-    width: 400,
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  actionButtonsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  removeButton: {
-    marginRight: 10,
-    backgroundColor: "#ff4d4d",
-    padding: 10,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    width: 60,
-    height: 60,
-  },
-  submitButton: {
-    backgroundColor: "#6200ee",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    height: 60,
-    width: 80,
-  },
-  submitButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  fullScreenContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-  },
-  fullScreenImage: {
-    width: "100%",
-    height: "80%",
-    resizeMode: "contain",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 40,
-    right: 20,
-    padding: 10,
-    backgroundColor: "#ffffff",
-    borderRadius: 5,
-  },
-});
 
 export default UploadScreen;

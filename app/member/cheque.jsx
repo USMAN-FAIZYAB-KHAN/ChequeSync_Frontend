@@ -35,11 +35,13 @@ const ChequeScreen = () => {
   }, []);
 
   const filterCheques = () => {
-    return chequesData.filter(cheque => {
+    return chequesData.filter((cheque) => {
       const chequeDate = new Date(cheque.date);
       const chequeMonth = chequeDate.getMonth() + 1;
-      const isStatusMatch = selectedStatus === 'All' || cheque.status === selectedStatus;
-      const isMonthMatch = selectedMonth === 'All' || chequeMonth === parseInt(selectedMonth);
+      const isStatusMatch =
+        selectedStatus === "All" || cheque.status === selectedStatus;
+      const isMonthMatch =
+        selectedMonth === "All" || chequeMonth === parseInt(selectedMonth);
       return isStatusMatch && isMonthMatch;
     });
   };
@@ -94,6 +96,7 @@ const ChequeScreen = () => {
         renderItem={({ item }) => (
           <ChequeCard id={item.id} date={item.date} status={item.status} month={item.month} />
         )}
+        className="bg-white rounded-lg shadow-md"
       />
     </View>
   );
