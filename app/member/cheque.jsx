@@ -7,7 +7,7 @@ import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 
 
 //Find id of the user
-const _id = "67350024a70877fe03ff5052"
+const _id = "67350c318bf3ff24bfc3a74e"
 
 const chequesData = [
   { id: '1', amount: 1500, date: '2024-09-15', status: 'Pending' },

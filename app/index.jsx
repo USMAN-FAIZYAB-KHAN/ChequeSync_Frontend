@@ -1,43 +1,52 @@
-import { View, Text } from "react-native";
-import { Redirect } from "expo-router";
-import React, { useEffect, useState } from "react";
 
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator,Text } from 'react-native';
+import { Redirect } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 
 const Index = () => {
-  const [shouldRedirect, setShouldRedirect] = useState(true);
-  const [socketConnected, setSocketConnected] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Main layout loaded");
+    const checkUserRole = async () => {
+      try {
+        const accessToken = await SecureStore.getItemAsync('accessToken');
+        const role = await SecureStore.getItemAsync('userRole'); // Assuming userRole is stored during sign-in.
 
-    // Initialize the socket
-    const socket = initializeSocket();
+        if (accessToken && role) {
+          setUserRole(role.toLowerCase());
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Listen for socket connection event
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-      setSocketConnected(true);
-    });
-
-
+    checkUserRole();
   }, []);
 
-  if (shouldRedirect) {
-    return <Redirect href="/(auth)/signin" />;
+  
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </View>
+    );
   }
 
-  return (
-    <View>
-      <Text>Index</Text>
-      {/* Example button or logic to trigger redirection */}
-      <Text onPress={() => setShouldRedirect(true)}>Go to Signin</Text>
+  if (userRole === 'member') {
+    return <Redirect href="/member/cheque" />;
+  } else if (userRole === 'branchmanager') {
+    return <Redirect href="/branchmanager/chequedetail" />;
+  } else if (userRole === 'chequemanager') {
+    return <Redirect href="/chequemanager/chequedetail" />;
+  }
 
-      {/* Display socket connection status */}
-      <Text>
-        Socket Status: {socketConnected ? "Connected" : "Disconnected"}
-      </Text>
-    </View>
-  );
+  // Default: Redirect to sign-in if no valid role or token is found.
+  return <Redirect href="/(auth)/signin" />;
 };
 
 export default Index;

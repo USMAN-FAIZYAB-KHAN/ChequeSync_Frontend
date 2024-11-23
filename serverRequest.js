@@ -1,5 +1,7 @@
-const api_url = 'http://192.168.100.11:5000/api';
-// const api_url = 'http://10.200.254.243:5000/api';
+// const api_url = 'http://192.168.100.11:5000/api';
+const api_url = 'http://localhost:5000/api';
+// const api_url = 'http://192.168.3.101:5000/api';
+// const api_url = 'http:// 10.200.255.21:5000/api';
 //10.200.254.243
 
 
@@ -37,7 +39,7 @@ export const logInRequest = async (data) => {
             },
             body: JSON.stringify(data),
         });
-
+        console.log(response)
         if (!response.ok) {
             const error = await response.json();
             throw new Error(`Error: ${error.message || response.statusText}`);
