@@ -63,8 +63,23 @@ const UploadScreen = () => {
     setSelectedImage(null);
   };
 
-  const handleSubmit = () => {
-    alert("Image submitted successfully!");
+  const handleSubmit = async () => {
+    if (!selectedMonth) {
+      alert('Please select a month!');
+      return;
+    }
+    
+    let result = await saveChequeRequest(monthNames[selectedMonth], selectedImage);
+
+    console.log(result);
+
+    if (result.statusCode === 201) {
+      setSelectedImage(null);
+      setSelectedMonth("");
+      setShowFullScreen(false);
+      // redirect to the cheque page
+      router.push('/member/cheque');
+    }
   };
 
   return (
