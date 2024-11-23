@@ -185,7 +185,6 @@ const MessageList = () => {
     return null;
   };
 
-
   const handleSearch = (query) => {
     setSearchQuery(query);
     const filtered = messages.filter((msg) =>
@@ -195,52 +194,52 @@ const MessageList = () => {
   };
 
   // Toggle "Select All" functionality
-const handleSelectAll = () => {
-  setIsSelectAll((prev) => !prev);
-  if (isSelectAll) {
-    setSelectedMessages([]); // If Select All is deactivated, clear selected messages
-  } else {
-    setSelectedMessages(messages.map((msg) => msg._id)); // Select all messages
-  }
-};
+  const handleSelectAll = () => {
+    setIsSelectAll((prev) => !prev);
+    if (isSelectAll) {
+      setSelectedMessages([]); // If Select All is deactivated, clear selected messages
+    } else {
+      setSelectedMessages(messages.map((msg) => msg._id)); // Select all messages
+    }
+  };
 
-// Handle message click (for selection/deselection or opening modal)
-const handleToggleMessage = (id) => {
-  if (isSelectAll) {
-    // If "Select All" is active, just select/deselect the message, no modal
-    setSelectedMessages((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((msgId) => msgId !== id)
-        : [...prevSelected, id]
+  // Handle message click (for selection/deselection or opening modal)
+  const handleToggleMessage = (id) => {
+    if (isSelectAll) {
+      // If "Select All" is active, just select/deselect the message, no modal
+      setSelectedMessages((prevSelected) =>
+        prevSelected.includes(id)
+          ? prevSelected.filter((msgId) => msgId !== id)
+          : [...prevSelected, id]
+      );
+    } else {
+      // If "Select All" is not active, open the modal for the selected message
+      const selectedMsg = messages.find((msg) => msg._id === id);
+      setSelectedMessage(selectedMsg); // Open modal for the selected message
+    }
+  };
+
+  // Select a dummy message
+  const handleSelectDummyMessage = (msg) => {
+    setCustomMessage(msg); // Set the selected dummy message in the input box
+  };
+
+  // Handle receiving single message (remove it from the list)
+  const handleReceiveSingle = (messageId) => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((msg) => msg._id !== messageId)
     );
-  } else {
-    // If "Select All" is not active, open the modal for the selected message
-    const selectedMsg = messages.find((msg) => msg._id === id);
-    setSelectedMessage(selectedMsg); // Open modal for the selected message
-  }
-};
+    setSelectedMessage(null); // Close modal after receiving message
+  };
 
-// Select a dummy message
-const handleSelectDummyMessage = (msg) => {
-  setCustomMessage(msg); // Set the selected dummy message in the input box
-};
-
-// Handle receiving single message (remove it from the list)
-const handleReceiveSingle = (messageId) => {
-  setMessages((prevMessages) =>
-    prevMessages.filter((msg) => msg._id !== messageId)
-  );
-  setSelectedMessage(null); // Close modal after receiving message
-};
-
-// Handle receiving multiple messages (remove selected messages from the list)
-const handleReceive = () => {
-  setMessages((prevMessages) =>
-    prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
-  );
-  setSelectedMessages([]); // Clear selected messages
-  setIsSelectAll(false); // Deactivate Select All
-};
+  // Handle receiving multiple messages (remove selected messages from the list)
+  const handleReceive = () => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+    );
+    setSelectedMessages([]); // Clear selected messages
+    setIsSelectAll(false); // Deactivate Select All
+  };
   const handleRejectSingle = async (messageId) => {
     const photoUri = await takePhoto();
     if (photoUri) {

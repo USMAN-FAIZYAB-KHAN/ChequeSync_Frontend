@@ -3,69 +3,63 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from '@react-navigation/native';
-
-
 import { logInRequest } from '../../serverRequest';
 
 const SignInForm = () => {
-  const navigation = useNavigation();
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
   const handleSignIn = async () => {
-    // Add your sign-in logic here
+    if (!username || !password) {
+      alert('Please enter both username and password.');
+      return;
+    }
 
-    let data = {
+    const data = {
       userName: username,
-      password: password
-    }
+      password: password,
+    };
 
-    console.log(data)
+    try {
+      const res = await logInRequest(data);
 
-    let res = await logInRequest(data)
-    console.log(res)
-
-    if (typeof res === 'string' && res.includes('not_exists')) {
-
-      alert('User Not Found With This Credentials');
-      return;
-    }
-    else if (typeof res === 'string' && res.includes('inv_cred')) {
-
-      alert('Invalid Credential');
-      return;
-    }
-
-    else if (res.statusCode === 200) {
-      // navigation.navigate('signin');]
-      const accessToken = res.data.accessToken;
-      const refreshToken = res.data.refreshToken;
-      const typeUser = res.data.user.type //check for member
-      console.log(typeUser)
-      await SecureStore.setItemAsync('accessToken', accessToken);
-      await SecureStore.setItemAsync('refreshToken', refreshToken);
-
-      if (typeUser.toLowerCase() == 'member') {
-        router.push('/member/cheque')
-      } else if (typeUser.toLowerCase() == 'branchmanager') {
-        console.log("hhh")
-        router.push('/branchmanager/chequedetail')
+      if (typeof res === 'string') {
+        if (res.includes('not_exists')) {
+          alert('User not found with this credentials.');
+        } else if (res.includes('inv_cred')) {
+          alert('Invalid credentials.');
+        }
+        return;
       }
-      else if (typeUser.toLowerCase() == 'branchManager') {
-        pass
-      }
-      else if (typeUser.toLowerCase() == "chequeManager") {
-        router.push('chequemanager/chequedetail')
-      }
+      
+      if (res.statusCode === 200) {
+        const { accessToken, refreshToken, user } = res.data;
+        const typeUser = res.data.user.type.toLowerCase();
+        console.log(typeUser)
+        // await SecureStore.setItemAsync('accessToken', accessToken);
+        // await SecureStore.setItemAsync('refreshToken', refreshToken);
 
-
-      return;
+        switch (typeUser) {
+          case 'member':
+            router.push('/member/cheque');
+            break;
+          case 'branchmanager':
+            router.push('/branchmanager/chequedetail');
+            break;
+          case 'chequemanager':
+            router.push('/chequemanager/chequedetail');
+            break;
+          default:
+            alert('Unknown user type.');
+        }
+      } else {
+        alert('Failed to sign in. Please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred during sign-in. Please try again later.');
     }
-
-    console.log('username:', username);
-    console.log('Password:', password);
   };
 
   return (
@@ -74,10 +68,9 @@ const SignInForm = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="username"
+        placeholder="Username"
         value={username}
         onChangeText={setUsername}
-        keyboardType="username-address"
         autoCapitalize="none"
       />
 
