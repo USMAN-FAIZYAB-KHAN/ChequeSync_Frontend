@@ -5,6 +5,35 @@ const api_url = 'http://192.168.3.101:5000/api';
 //10.200.254.243
 
 
+export const saveChequeRequest = async (data) => {
+    console.log("Saving cheque request...");
+    try {
+        const response = await fetch(`${api_url}/cheques/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        // Check if the response is not ok
+        if (!response.ok) {
+            const errorText = await response.text(); // Get the response text (in case it's not JSON)
+            console.error("Error response body:", errorText);
+            throw new Error(`Error: ${errorText || response.statusText}`);
+        }
+
+        // Try to parse JSON if the response is valid
+        const result = await response.json();
+        console.log("Response:", result);
+        return result;
+    } catch (error) {
+        // Catch any JSON parsing errors or network errors
+        console.error("Error occurred while saving cheque request:", error);
+        return error.message; // Return the error message
+    }
+};
+
 export const registerRequest = async (data) => {
     try {
         const response = await fetch(`${api_url}/users/register`, {
@@ -81,3 +110,29 @@ export const automaticSignUp = async (data) => {
     }
 }
 
+export const getmembersCheque = async () =>{
+    try {
+        console.log("response")
+        const response = await fetch(`${api_url}/cheques/membercheque/67350c318bf3ff24bfc3a74e`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log("Member")
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(`Error: ${error.message || response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        console.log(result.statusCode, result);
+        return result
+    } catch (error) {
+        return error.message
+
+    }
+}

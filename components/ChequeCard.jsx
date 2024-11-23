@@ -5,22 +5,39 @@ import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Import icons
 // Function to get border and text color based on status
 const getStatusStyles = (status) => {
   switch (status) {
-    case 'Pending':
+    case 'posted':
       return { borderColor: 'border-yellow-400', textColor: 'text-yellow-500' };
-    case 'Approved':
+    case 'approved':
       return { borderColor: 'border-green-500', textColor: 'text-green-600' };
-    case 'Rejected':
+    case 'received':
+      return { borderColor: 'border-orange-500', textColor: 'text-orange-600' };
+    case 'rejected':
       return { borderColor: 'border-red-500', textColor: 'text-red-600' };
     default:
       return { borderColor: 'border-gray-300', textColor: 'text-gray-500' };
   }
 };
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const ChequeCard = ({ month, date, status }) => {
   const { borderColor, textColor } = getStatusStyles(status);
 
+
   return (
-    <View className={`relative p-4 rounded-lg border ${borderColor} mb-4 bg-white shadow-md`}>
+    <View className={`relative p-4 rounded-lg  border-2 ${borderColor} mb-4 bg-white`}>
       {/* Action Icons (Top Right) */}
       <View className="absolute top-3 right-3 flex flex-row gap-4">
         {/* View Icon */}
@@ -29,7 +46,7 @@ const ChequeCard = ({ month, date, status }) => {
         </Pressable>
 
         {/* Edit Icon (Visible only if status is Pending) */}
-        {status === 'Pending' && (
+        {status === 'posted' && (
           <Pressable onPress={() => alert('Edit Pressed')}>
             <MaterialIcons name="edit" size={20} color="#f59e0b" />
           </Pressable>
@@ -47,13 +64,13 @@ const ChequeCard = ({ month, date, status }) => {
         {/* Month */}
         <View className="mb-3">
           <Text className="font-medium text-gray-500">Month</Text>
-          <Text className="font-bold text-gray-900">{month}</Text>
+          <Text className="font-bold text-gray-900">{months[month-1]}</Text>
         </View>
 
         {/* Status */}
         <View>
           <Text className="text-sm font-medium text-gray-500">Status</Text>
-          <Text className={`font-bold ${textColor}`}>{status}</Text>
+          <Text className={`font-bold capitalize ${textColor} `}>{status}</Text>
         </View>
       </View>
     </View>

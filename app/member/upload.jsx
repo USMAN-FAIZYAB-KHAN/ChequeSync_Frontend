@@ -10,7 +10,10 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { saveChequeRequest } from "../../serverRequest.js"
+import { useRouter } from 'expo-router';
 
+const router = useRouter();
 const UploadScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFullScreen, setShowFullScreen] = useState(false);
@@ -51,26 +54,35 @@ const UploadScreen = () => {
       setSelectedImage(result.assets[0].uri);
     }
   };
+
   const handleSubmit = async () => {
+    console.log("Handling submit...");
     if (!selectedMonth) {
-      alert("Please select a month!");
-      return;
+        alert("Please select a month!");
+        return;
     }
 
-    let result = await saveChequeRequest(
-      monthNames[selectedMonth],
-      selectedImage
-    );
+    let result = await saveChequeRequest({
+        memberId: '67350c318bf3ff24bfc3a74e',
+        month: months.indexOf(selectedMonth) + 1,
+        image: selectedImage
+    });
 
-    console.log(result);
+    console.log('Result:', result);
 
-    if (result.statusCode === 201) {
-      setSelectedImage(null);
-      setSelectedMonth("");
-      setShowFullScreen(false);
-      // redirect to the cheque page
-      router.push("/member/cheque");
+    // Check for success status
+    if (result && result.statusCode === 201) {
+        setSelectedImage(null);
+        setSelectedMonth("");
+        setShowFullScreen(false);
+        // Redirect to the cheque page
+        router.push("/member/cheque");
+    } else {
+        // Handle errors or unexpected results
+        alert(result || "An error occurred while saving the cheque request.");
     }
+
+
   };
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
