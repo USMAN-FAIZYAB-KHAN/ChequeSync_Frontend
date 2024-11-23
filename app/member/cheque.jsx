@@ -96,7 +96,6 @@ const ChequeScreen = () => {
         renderItem={({ item }) => (
           <ChequeCard id={item.id} date={item.date} status={item.status} month={item.month} />
         )}
-        className="bg-white rounded-lg shadow-md"
       />
     </View>
   );
