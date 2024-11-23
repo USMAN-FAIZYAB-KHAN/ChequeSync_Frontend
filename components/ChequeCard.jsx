@@ -1,57 +1,59 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Import icons
 
-// Function to get border color based on status
-const getBorderColor = (status) => {
+// Function to get border and text color based on status
+const getStatusStyles = (status) => {
   switch (status) {
     case 'Pending':
-      return 'border-yellow-500'; // Yellow for pending
+      return { borderColor: 'border-yellow-400', textColor: 'text-yellow-500' };
     case 'Approved':
-      return 'border-green-600'; // Dark green for approved
+      return { borderColor: 'border-green-500', textColor: 'text-green-600' };
     case 'Rejected':
-      return 'border-red-600'; // Dark red for rejected
+      return { borderColor: 'border-red-500', textColor: 'text-red-600' };
     default:
-      return 'border-gray-400'; // Default gray border
+      return { borderColor: 'border-gray-300', textColor: 'text-gray-500' };
   }
 };
 
-const ChequeCard = ({ id, amount, date, status }) => {
+const ChequeCard = ({ month, date, status }) => {
+  const { borderColor, textColor } = getStatusStyles(status);
+
   return (
-    <View className={`p-5 rounded-lg border-2 mb-3 bg-gray-100 shadow-md ${getBorderColor(status)}`}>
-      
-      {/* Date Row */}
-      <View className="flex flex-row-reverse items-center gap-2 mb-3">
-        <Text className="font-semibold text-gray-700">{date}</Text>
-        <Text className="text-gray-500">Date:</Text>
+    <View className={`relative p-4 rounded-lg border ${borderColor} mb-4 bg-white shadow-md`}>
+      {/* Action Icons (Top Right) */}
+      <View className="absolute top-3 right-3 flex flex-row gap-4">
+        {/* View Icon */}
+        <Pressable onPress={() => alert('View Image Pressed')}>
+          <FontAwesome name="eye" size={20} color="#2563eb" />
+        </Pressable>
+
+        {/* Edit Icon (Visible only if status is Pending) */}
+        {status === 'Pending' && (
+          <Pressable onPress={() => alert('Edit Pressed')}>
+            <MaterialIcons name="edit" size={20} color="#f59e0b" />
+          </Pressable>
+        )}
       </View>
 
-      {/* Payee Name */}
-      <View className="flex flex-row gap-2 items-center mb-3">
-        <Text className="text-gray-500 w-14">Name:</Text>
-        <View className="grow">
-          <Text className="text-lg font-semibold text-gray-800">Usman Faizyab</Text>
-          <View className="h-0.5 bg-gray-400 mt-1" />
+      {/* Content */}
+      <View className="flex flex-row justify-between mt-6" >
+        {/* Date */}
+        <View className="mb-3">
+          <Text className="font-medium text-gray-500">Date</Text>
+          <Text className="font-bold text-gray-900">{date}</Text>
         </View>
-      </View>
 
-      {/* Month and Amount */}
-      <View className="flex flex-row justify-between items-center mb-3">
-        <View className="flex flex-row items-center gap-2">
-          <Text className="text-gray-500 w-14">Month:</Text>
-          <View className="">
-            <Text className="text-lg font-semibold text-gray-800">January</Text>
-            <View className="h-0.5 bg-gray-400 mt-1" />
-          </View>        
-        <Text className="border border-gray-400 bg-gray-200 rounded-md px-4 py-2 text-gray-800 font-medium">{amount} Rs</Text>
+        {/* Month */}
+        <View className="mb-3">
+          <Text className="font-medium text-gray-500">Month</Text>
+          <Text className="font-bold text-gray-900">{month}</Text>
         </View>
-      </View>
 
-      {/* Status */}
-      <View className="flex flex-row gap-2 items-center">
-        <Text className="text-gray-500 w-14">Status:</Text>
-        <View className="grow">
-          <Text className={`text-lg font-semibold ${status === 'Approved' ? 'text-green-600' : status === 'Rejected' ? 'text-red-600' : 'text-yellow-500'}`}>{status}</Text>
-          <View className="h-0.5 bg-gray-400 mt-1" />
+        {/* Status */}
+        <View>
+          <Text className="text-sm font-medium text-gray-500">Status</Text>
+          <Text className={`font-bold ${textColor}`}>{status}</Text>
         </View>
       </View>
     </View>
