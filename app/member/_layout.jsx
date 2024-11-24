@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 // import { LinearGradient } from 'expo-linear-gradient';
-import { SocketProvider } from "../../context/socket.js"; // Adjust path as necessary
+import { SocketProvider, useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import ChequeScreen from "./cheque.jsx";
 
 const styles = StyleSheet.create({
@@ -44,9 +44,12 @@ const styles = StyleSheet.create({
 
 const Layout = () => {
 
+ 
+
+
   return (
     <SocketProvider>
-      {/* <ChequeScreen/> */}
+
       <Tabs
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color }) => {

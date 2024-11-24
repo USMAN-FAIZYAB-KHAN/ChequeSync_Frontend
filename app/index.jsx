@@ -1,12 +1,25 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator,Text } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
 import { Redirect } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const Index = () => {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
+
+
+  
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -27,7 +40,7 @@ const Index = () => {
     checkUserRole();
   }, []);
 
-  
+
 
   if (loading) {
     return (
