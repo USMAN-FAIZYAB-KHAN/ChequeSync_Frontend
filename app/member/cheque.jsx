@@ -27,22 +27,36 @@ const ChequeScreen = () => {
   const socket = useSocket();
 
   useEffect(() => {
-    if (socket) {
-      // Register the user in the socket
-      socket.emit("registerUser", { userId: _id });
+    if (!socket) return;
 
-      // Confirmation listener
-      socket.on("receiveConfirmation", (message) => console.log(message));
+    // Register user when socket connects
+    socket.emit("registerUser", { userId: _id });
 
-      // Handle socket errors
-      socket.on("error", (error) => {
-        console.error("Socket.IO Error:", error);
-      });
-    }
-  }, []);
+    // Listener for confirmation
+    const handleConfirmation = (message) => {
+      console.log("Confirmation received:", message);
+    };
+
+    // Listener for notifications
+    const handleNotification = (message) => {
+      console.log("Notification received:", message);
+    };
+
+    // Listener for errors
+    const handleError = (error) => {
+      console.error("Socket.IO Error:", error);
+    };
+
+    // Attach event listeners
+    socket.on("receiveConfirmation", handleConfirmation);
+    socket.on("receiveNotification", handleNotification);
+    socket.on("error", handleError);
+
+
+  }, [socket, _id]); // Dependencies: socket and _id
 
   const filterCheques = () => {
-    return membercheques? membercheques.filter((cheque) => {
+    return membercheques ? membercheques.filter((cheque) => {
       const isStatusMatch =
         selectedStatus == "All" || cheque.status == selectedStatus;
 
