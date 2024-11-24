@@ -1,137 +1,146 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { getAllMemberCheques } from '../../serverRequest.js';
 
-const chequesData = [
-    { id: '2', memberName: 'Ali', month: 'April', year: '2024', status: 'received' },
-    { id: '3', memberName: 'Sara', month: 'May', year: '2024', status: 'rejected' },
-    { id: '4', memberName: 'Ahmed', month: 'March', year: '2023', status: 'received' },
-    { id: '5', memberName: 'Zara', month: 'April', year: '2023', status: 'rejected' },
+const months = [
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', 
+  'August', 'September', 'October', 'November', 'December'
 ];
 
-const years = ['2023', '2024'];
-const months = ['January', 'February','March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const filterOptions = ['all', 'received', 'rejected'];
+const filterOptions = ['all', 'received', 'rejected', 'posted'];
 
 const MembersCheque = () => {
-    const [expandedMonths, setExpandedMonths] = useState({});
-    const [filters, setFilters] = useState({
-        March: 'all',
-        April: 'all',
-        May: 'all',
-    });
-    const [selectedYear, setSelectedYear] = useState('2024');
+  const [cheques, setCheques] = useState([]); // Stores fetched cheques
+  const [expandedMonths, setExpandedMonths] = useState({}); // Track expanded months
+  const [filters, setFilters] = useState(
+    months.reduce((acc, month) => {
+      acc[month] = 'all'; // Default to 'all' filter for each month
+      return acc;
+    }, {})
+  );
+  const [selectedYear, setSelectedYear] = useState('2024'); // Default year
 
-    const toggleMonth = (month) => {
-        setExpandedMonths((prev) => ({
-            ...prev,
-            [month]: !prev[month],
-        }));
-    };
+  // Fetch cheques when the component mounts or when year changes
+  const membersCheques = async () => {
+    try {
+      const response = await getAllMemberCheques();
+      setCheques(response.data.cheques); // Store cheques
+    } catch (error) {
+      console.error('Error fetching cheques:', error);
+    }
+  };
 
-    const handleFilterSelect = (month, filter) => {
-        setFilters((prev) => ({
-            ...prev,
-            [month]: filter,
-        }));
-    };
+  useEffect(() => {
+    membersCheques();
+  }, [selectedYear]); // Refetch on year change
 
-    const getFilteredCheques = (month) => {
-        const selectedFilter = filters[month] || 'all';
-        return chequesData.filter((cheque) => {
-            const isMatchingYear = cheque.year === selectedYear;
-            const isMatchingMonth = cheque.month === month;
-            const isMatchingStatus = selectedFilter === 'all' || cheque.status === selectedFilter;
-            return isMatchingYear && isMatchingMonth && isMatchingStatus;
-        });
-    };
+  const toggleMonth = (month) => {
+    setExpandedMonths((prev) => ({
+      ...prev,
+      [month]: !prev[month], // Toggle expand/collapse for month
+    }));
+    // console.log("1")
+    // let ch = cheques.filter((cheque)=>{
+    //   console.log(cheque.month, month)
+    //   return cheque?.month==month
+    // })
+    // console.log("2")
+    // console.log(ch)
 
-    return (
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
-                <Text style={styles.heading}>Cheque Management</Text>
+    // setExpandedMonths(ch)
+  };
 
-                {/* Year Dropdown */}
-                <View style={styles.yearDropdownContainer}>
-                    <Text style={styles.dropdownLabel}>Select Year:</Text>
-                    <Picker
-                        selectedValue={selectedYear}
-                        onValueChange={(itemValue) => setSelectedYear(itemValue)}
-                        style={styles.yearPicker}
-                    >
-                        {years.map((year) => (
-                            <Picker.Item key={year} label={year} value={year} />
-                        ))}
-                    </Picker>
-                </View>
+  const handleFilterSelect = (month, filter) => {
+    console.log("In filter")
+    setFilters((prev) => ({
+      ...prev,
+      [month]: filter, // Update filter for the month
+    }));
+  };
 
-                {/* Month Sections */}
-                <View style={styles.navigationContainer}>
-                    {months.map((month) => (
-                        <View key={month} style={styles.monthSection}>
-                            <TouchableOpacity onPress={() => toggleMonth(month)} style={styles.monthButton}>
-                                <Text style={styles.monthText}>
-                                    {expandedMonths[month] ? `↓ ${month}` : `↑ ${month}`}
-                                </Text>
-                            </TouchableOpacity>
-
-                            {/* Filter Buttons for each month */}
-                            {expandedMonths[month] && (
-                                <View style={styles.filterContainer}>
-                                    {filterOptions.map((filter) => (
-                                        <TouchableOpacity
-                                            key={filter}
-                                            onPress={() => handleFilterSelect(month, filter)}
-                                            style={[
-                                                styles.filterButton,
-                                                filters[month] === filter && styles.filterButtonSelected,
-                                            ]}
-                                        >
-                                            <Text
-                                                style={[
-                                                    styles.filterText,
-                                                    filters[month] === filter && styles.filterTextSelected,
-                                                ]}
-                                            >
-                                                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            )}
-
-                            {/* Dropdown Cheque List */}
-                            {expandedMonths[month] && (
-                                <FlatList
-                                    data={getFilteredCheques(month)}
-                                    keyExtractor={(item) => item.id}
-                                    renderItem={({ item }) => (
-                                        <View
-                                            style={[
-                                                styles.messageContainer,
-                                                item.status === 'received'
-                                                    ? styles.received
-                                                    : item.status === 'rejected'
-                                                    ? styles.rejected
-                                                    : null,
-                                            ]}
-                                        >
-                                            <Text style={styles.memberName}>{item.memberName}</Text>
-                                            <Text style={styles.message}>
-                                                {item.month} {item.year} Cheque -{' '}
-                                                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                                            </Text>
-                                        </View>
-                                    )}
-                                />
-                            )}
-                        </View>
-                    ))}
-                </View>
-            </View>
-        </ScrollView>
+  const getFilteredCheques = (month) => {
+    const selectedFilter = filters[month];
+    
+    return cheques.filter((cheque) => 
+      cheque.year == selectedYear && 
+      cheque.month ==  month &&
+      (selectedFilter === 'all' || cheque.status == selectedFilter) // Apply filter
     );
+  };
+
+  useEffect(()=>{
+    console.log(expandedMonths)
+  }, [expandedMonths])
+
+  return (
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <Text style={styles.heading}>Cheque Management</Text>
+
+        {/* Year Dropdown */}
+        <View style={styles.yearDropdownContainer}>
+          <Text style={styles.dropdownLabel}>Select Year:</Text>
+          <Picker
+            selectedValue={selectedYear}
+            onValueChange={(itemValue) => setSelectedYear(itemValue)} // Change year
+            style={styles.yearPicker}
+          >
+            {['2023', '2024'].map((year) => (
+              <Picker.Item key={year} label={year} value={year} />
+            ))}
+          </Picker>
+        </View>
+
+        {/* Month Sections */}
+        {months.map((month) => (
+          <View key={month} style={styles.monthSection}>
+            <TouchableOpacity onPress={() => toggleMonth(month)} style={styles.monthButton}>
+              <Text style={styles.monthText}>
+                {expandedMonths[month] ? `↓ ${month}` : `↑ ${month}`}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Filter Options */}
+            {expandedMonths[month] && (
+              <View style={styles.filterContainer}>
+                {filterOptions.map((filter) => (
+                  <TouchableOpacity
+                    key={filter}
+                    onPress={() => handleFilterSelect(month, filter)}
+                    style={[
+                      styles.filterButton, 
+                      filters[month] === filter && styles.filterButtonSelected
+                    ]}
+                  >
+                    <Text style={styles.filterText}>
+                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* List of Cheques */}
+            {expandedMonths[month] && (
+              <FlatList
+                data={getFilteredCheques(month)}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={[styles.messageContainer, item.status === 'posted' && styles.posted]}>
+                    <Text style={styles.memberName}>{item.memberName}</Text>
+                    <Text style={styles.message}>{item.month} {item.year} Cheque - {item.status}</Text>
+                  </View>
+                )}
+              />
+            )}
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
 };
+
 
 const styles = StyleSheet.create({
     container: {
@@ -210,9 +219,9 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         width: '100%',
     },
-    received: {
+    posted: {
         borderWidth: 2,
-        borderColor: 'green',
+        borderColor: 'blue', // Added a new color for 'posted'
     },
     rejected: {
         borderWidth: 2,

@@ -11,10 +11,14 @@ const _id = "67350c318bf3ff24bfc3a74e";
 const ChequeScreen = () => {
   const [membercheques, setmembercheques] = useState([]);
 
-  useEffect(async () => {
-    const result = await getmembersCheque();
-    console.log(result.data);
-    setmembercheques(result.data);
+  useEffect(() => {
+    const calling = async () => {
+
+      const result = await getmembersCheque();
+      setmembercheques(result.data);
+    }
+
+    calling()
   }, []);
 
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -38,7 +42,7 @@ const ChequeScreen = () => {
   }, []);
 
   const filterCheques = () => {
-    return membercheques.filter((cheque) => {
+    return membercheques? membercheques.filter((cheque) => {
       const isStatusMatch =
         selectedStatus == "All" || cheque.status == selectedStatus;
 
@@ -49,7 +53,7 @@ const ChequeScreen = () => {
         selectedYear == "All" || new Date(cheque.date).getFullYear() == selectedYear;
 
       return isStatusMatch && isMonthMatch && isYearMatch;
-    });
+    }) : null;
   };
 
   return (
