@@ -9,7 +9,7 @@ import {
   FlatList,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getMembersPostedCheque } from "../../serverRequest.js"
+import { getMembersPostedCheque, updateChequeStatus } from "../../serverRequest.js"
 
 const memberLogo = require("../../assets/member-logo.png");
 
@@ -61,6 +61,8 @@ const MessageList = () => {
   };
 
   const handleReceive = async () => {
+
+    console.log("in s")
     setMessages((prevMessages) =>
       prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
     );
@@ -76,11 +78,10 @@ const MessageList = () => {
     setFilteredMessages(filtered);
   };
 
-  const handleReceiveSingle = (messageId) => {
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => msg._id !== messageId)
-    );
-    setSelectedMessage(null);
+  const handleChequeStatus = async (messageId, type) => {
+    console.log(selectedMessage, messageId)
+    let res = updateChequeStatus(messageId, type)
+    console.log(res)
   };
 
   const handleRejectSingle = (messageId) => {
@@ -175,7 +176,7 @@ const MessageList = () => {
               </Text>
               <View className="w-64 mb-4">
                 <TouchableOpacity
-                  onPress={() => handleReceiveSingle(selectedMessage._id)}
+                  onPress={() => handleChequeStatus(selectedMessage._id, "receive")}
                   style={{
                     backgroundColor: "#4CAF50",
                     paddingVertical: 12,

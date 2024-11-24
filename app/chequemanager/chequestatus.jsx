@@ -40,9 +40,19 @@ const MembersCheque = () => {
       ...prev,
       [month]: !prev[month], // Toggle expand/collapse for month
     }));
+    // console.log("1")
+    // let ch = cheques.filter((cheque)=>{
+    //   console.log(cheque.month, month)
+    //   return cheque?.month==month
+    // })
+    // console.log("2")
+    // console.log(ch)
+
+    // setExpandedMonths(ch)
   };
 
   const handleFilterSelect = (month, filter) => {
+    console.log("In filter")
     setFilters((prev) => ({
       ...prev,
       [month]: filter, // Update filter for the month
@@ -51,12 +61,17 @@ const MembersCheque = () => {
 
   const getFilteredCheques = (month) => {
     const selectedFilter = filters[month];
+    
     return cheques.filter((cheque) => 
-      cheque.year === selectedYear && 
-      cheque.month === month &&
-      (selectedFilter === 'all' || cheque.status === selectedFilter) // Apply filter
+      cheque.year == selectedYear && 
+      cheque.month ==  month &&
+      (selectedFilter === 'all' || cheque.status == selectedFilter) // Apply filter
     );
   };
+
+  useEffect(()=>{
+    console.log(expandedMonths)
+  }, [expandedMonths])
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -110,7 +125,7 @@ const MembersCheque = () => {
             {expandedMonths[month] && (
               <FlatList
                 data={getFilteredCheques(month)}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <View style={[styles.messageContainer, item.status === 'posted' && styles.posted]}>
                     <Text style={styles.memberName}>{item.memberName}</Text>

@@ -173,3 +173,28 @@ export const getAllMemberCheques = async () => {
         return { error: error.message };
     }
 };
+
+
+export const updateChequeStatus = async (messageId, type) => {
+    try {
+        const response = await fetch(`${api_url}/cheques/allmembercheques`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({"messageId":messageId, "type": type})
+        });
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const result = await response.json();
+        console.log(result)
+        return result;
+    } catch (error) {
+        console.error("Error fetching member's posted cheques:", error.message);
+        return { error: error.message };
+    }
+};
+
+
+
