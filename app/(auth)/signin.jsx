@@ -26,6 +26,7 @@ const SignInForm = () => {
       userEmail: userEmail,
       password: password
     }
+    console.log(data)
 
     try {
       const res = await logInRequest(data);

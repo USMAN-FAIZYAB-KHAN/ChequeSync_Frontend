@@ -13,8 +13,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { saveChequeRequest } from "../../serverRequest.js"
 import { useRouter } from 'expo-router';
 
-const router = useRouter();
 const UploadScreen = () => {
+  const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFullScreen, setShowFullScreen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("");
