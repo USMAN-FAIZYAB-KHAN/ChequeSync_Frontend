@@ -113,7 +113,7 @@ export const automaticSignUp = async (data) => {
 export const getmembersCheque = async () =>{
     try {
         console.log("response")
-        const response = await fetch(`${api_url}/cheques/member-cheques/67350c318bf3ff24bfc3a74e`, {
+        const response = await fetch(`${api_url}/cheques/membercheque/67350c318bf3ff24bfc3a74e`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

@@ -33,7 +33,7 @@ const months = [
   "December",
 ];
 
-const ChequeCard = ({ month, date, status, chequeImageUrl }) => {
+const ChequeCard = ({ month, date, status, image }) => {
   const { borderColor, textColor } = getStatusStyles(status);
 
   // State for modal visibility
@@ -93,10 +93,13 @@ const ChequeCard = ({ month, date, status, chequeImageUrl }) => {
               <MaterialIcons name="close" size={24} color="white" />
             </Pressable>
             <Image
-              source={{ uri: chequeImageUrl }}
+              source={{
+                uri: image,
+              }}
               style={styles.chequeImage}
               resizeMode="contain"
             />
+
           </View>
         </View>
       </Modal>

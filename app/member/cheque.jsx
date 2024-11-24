@@ -132,6 +132,7 @@ const ChequeScreen = () => {
             date={new Date(item.updatedAt).toISOString().split('T')[0]}
             status={item.status}
             month={item.month}
+            image={item.image}
           />
         )}
       />
