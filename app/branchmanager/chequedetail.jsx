@@ -12,6 +12,11 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
+import * as Notifications from "expo-notifications";
+
+
+const _id = "67334eb57737198f6556ec4d"
 
 const memberLogo = require("../../assets/member-logo.png");
 
@@ -28,6 +33,74 @@ const MessageList = () => {
   const [dummyMessages, setDummyMessages] = useState([]);
   const [defaultView, setDefaultView] = useState(true); // Default view control
   const [selectedMessage, setSelectedMessage] = useState(null);
+
+  const socket = useSocket();
+
+
+  useEffect(() => {
+    // Request permissions for notifications
+    const requestPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      console.log(status)
+      if (status !== "granted") {
+        console.log("Notification permissions not granted!");
+      } else {
+        console.log("Notification permissions granted!");
+      }
+    };
+
+    requestPermissions();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // Register user when socket connects
+    socket.emit("registerUser", { userId: _id });
+
+    // Listener for confirmation
+    const handleConfirmation = (message) => {
+      console.log("Confirmation received:", message);
+    };
+
+    // Listener for notifications
+    const handleNotification = async (message) => {
+      try {
+        const notificationMessage =
+          typeof message === "string" ? JSON.parse(message).message : message.message;
+    
+        if (!notificationMessage) {
+          console.error("Invalid notification payload");
+          return;
+        }
+    
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Checque Posted",
+            body: notificationMessage,
+            sound: "default",
+          },
+          trigger: null,
+        });
+        console.log("Notification scheduled successfully");
+      } catch (error) {
+        console.error("Error scheduling notification:", error);
+      }
+    };
+    
+
+    // Listener for errors
+    const handleError = (error) => {
+      console.error("Socket.IO Error:", error);
+    };
+
+    // Attach event listeners
+    socket.on("receiveConfirmation", handleConfirmation);
+    socket.on("receiveNotification", handleNotification);
+    socket.on("error", handleError);
+
+
+  }, [socket, _id]); // Dependencies: socket and _id
 
   useEffect(() => {
     const dummyData = {
@@ -59,6 +132,9 @@ const MessageList = () => {
     setMessages(dummyData.cheques);
     setFilteredMessages(dummyData.cheques);
     setDummyMessages(dummyMsgs);
+
+
+    console.log("ENTER")
   }, []);
 
   const takePhoto = async () => {

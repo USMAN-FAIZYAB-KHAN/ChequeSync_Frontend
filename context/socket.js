@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
 
+const url = '192.168.100.11'
+
 const SocketContext = createContext();
 
 export const useSocket = () => useContext(SocketContext);
@@ -11,7 +13,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize Socket.IO client
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(`http://${url}:5000`, {
       transports: ["websocket"],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
