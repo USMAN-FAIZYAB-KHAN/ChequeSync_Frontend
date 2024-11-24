@@ -13,6 +13,7 @@ const ChequeScreen = () => {
 
   useEffect(async () => {
     const result = await getmembersCheque();
+    console.log(result.data);
     setmembercheques(result.data);
   }, []);
 

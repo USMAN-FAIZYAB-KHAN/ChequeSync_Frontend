@@ -1,6 +1,6 @@
 // const api_url = 'http://192.168.100.11:5000/api';
 // const api_url = 'http://localhost:5000/api';
-const api_url = 'http://192.168.3.101:5000/api';
+const api_url = 'http://localhost:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
 //10.200.254.243
 
@@ -113,7 +113,7 @@ export const automaticSignUp = async (data) => {
 export const getmembersCheque = async () =>{
     try {
         console.log("response")
-        const response = await fetch(`${api_url}/cheques/membercheque/67350c318bf3ff24bfc3a74e`, {
+        const response = await fetch(`${api_url}/cheques/member-cheques/67350c318bf3ff24bfc3a74e`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,22 +1,23 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Import icons
+import React, { useState } from "react";
+import { View, Text, Pressable, Modal, Image, StyleSheet } from "react-native";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 
 // Function to get border and text color based on status
 const getStatusStyles = (status) => {
   switch (status) {
-    case 'posted':
-      return { borderColor: 'border-yellow-400', textColor: 'text-yellow-500' };
-    case 'approved':
-      return { borderColor: 'border-green-500', textColor: 'text-green-600' };
-    case 'received':
-      return { borderColor: 'border-orange-500', textColor: 'text-orange-600' };
-    case 'rejected':
-      return { borderColor: 'border-red-500', textColor: 'text-red-600' };
+    case "posted":
+      return { borderColor: "border-yellow-400", textColor: "text-yellow-500" };
+    case "approved":
+      return { borderColor: "border-green-500", textColor: "text-green-600" };
+    case "received":
+      return { borderColor: "border-orange-500", textColor: "text-orange-600" };
+    case "rejected":
+      return { borderColor: "border-red-500", textColor: "text-red-600" };
     default:
-      return { borderColor: 'border-gray-300', textColor: 'text-gray-500' };
+      return { borderColor: "border-gray-300", textColor: "text-gray-500" };
   }
 };
+
 const months = [
   "January",
   "February",
@@ -32,29 +33,31 @@ const months = [
   "December",
 ];
 
-const ChequeCard = ({ month, date, status }) => {
+const ChequeCard = ({ month, date, status, chequeImageUrl }) => {
   const { borderColor, textColor } = getStatusStyles(status);
 
+  // State for modal visibility
+  const [isModalVisible, setModalVisible] = useState(false);
 
   return (
     <View className={`relative p-4 rounded-lg  border-2 ${borderColor} mb-4 bg-white`}>
       {/* Action Icons (Top Right) */}
       <View className="absolute top-3 right-3 flex flex-row gap-4">
         {/* View Icon */}
-        <Pressable onPress={() => alert('View Image Pressed')}>
+        <Pressable onPress={() => setModalVisible(true)}>
           <FontAwesome name="eye" size={20} color="#2563eb" />
         </Pressable>
 
         {/* Edit Icon (Visible only if status is Pending) */}
-        {status === 'posted' && (
-          <Pressable onPress={() => alert('Edit Pressed')}>
+        {status === "posted" && (
+          <Pressable onPress={() => alert("Edit Pressed")}>
             <MaterialIcons name="edit" size={20} color="#f59e0b" />
           </Pressable>
         )}
       </View>
 
       {/* Content */}
-      <View className="flex flex-row justify-between mt-6" >
+      <View className="flex flex-row justify-between mt-6">
         {/* Date */}
         <View className="mb-3">
           <Text className="font-medium text-gray-500">Date</Text>
@@ -64,7 +67,7 @@ const ChequeCard = ({ month, date, status }) => {
         {/* Month */}
         <View className="mb-3">
           <Text className="font-medium text-gray-500">Month</Text>
-          <Text className="font-bold text-gray-900">{months[month-1]}</Text>
+          <Text className="font-bold text-gray-900">{months[month - 1]}</Text>
         </View>
 
         {/* Status */}
@@ -73,8 +76,59 @@ const ChequeCard = ({ month, date, status }) => {
           <Text className={`font-bold capitalize ${textColor} `}>{status}</Text>
         </View>
       </View>
+
+      {/* Modal for displaying cheque image */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <MaterialIcons name="close" size={24} color="white" />
+            </Pressable>
+            <Image
+              source={{ uri: chequeImageUrl }}
+              style={styles.chequeImage}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    overflow: "hidden",
+    alignItems: "center",
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    margin: 10,
+    padding: 5,
+    backgroundColor: "red",
+    borderRadius: 20,
+  },
+  chequeImage: {
+    width: "100%",
+    height: 300,
+  },
+});
 
 export default ChequeCard;
