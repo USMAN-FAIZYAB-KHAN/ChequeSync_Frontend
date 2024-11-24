@@ -9,7 +9,8 @@ import {
   FlatList,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getMembersPostedCheque, updateChequeStatus } from "../../serverRequest.js"
+import { FontAwesome } from "@expo/vector-icons";
+import { getMembersPostedCheque, updateChequeStatus } from "../../serverRequest.js";
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import * as Notifications from "expo-notifications";
 
@@ -136,17 +137,15 @@ const MessageList = () => {
 
   const handleChequeStatus = async (messageId, status) => {
     try {
-      // Call the backend API to update cheque status
       const response = await updateChequeStatus(messageId, status);
       if (response.statusCode === 200) {
-        // Remove cheque from local state
         setMessages((prevMessages) =>
           prevMessages.filter((msg) => msg._id !== messageId)
         );
         setFilteredMessages((prevMessages) =>
           prevMessages.filter((msg) => msg._id !== messageId)
         );
-        setSelectedMessage(null); // Close the modal
+        setSelectedMessage(null);
       } else {
         console.error("Failed to update cheque status:", response.data);
       }
@@ -166,7 +165,6 @@ const MessageList = () => {
       );
       await Promise.all(promises);
 
-      // Remove received cheques from local state
       setMessages((prevMessages) =>
         prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
       );
@@ -206,7 +204,8 @@ const MessageList = () => {
       <View className="flex-row justify-between items-center mb-4">
         <TouchableOpacity
           onPress={handleSelectAll}
-          className="bg-emerald-600 py-[10px] px-10 rounded-full"
+          className={`py-[10px] px-10 rounded-full ${filteredMessages.length === 0 ? 'bg-gray-400' : 'bg-emerald-600'}`}
+          disabled={filteredMessages.length === 0}
         >
           <Text className="text-white font-medium">
             {isSelectAll ? "Deselect All" : "Select All"}
@@ -214,45 +213,51 @@ const MessageList = () => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleReceive}
-          className={`py-[10px] px-10 rounded-full ${
-            selectedMessages.length === 0 ? "bg-gray-400" : "bg-emerald-600"
-          }`}
+          className={`py-[10px] px-10 rounded-full ${selectedMessages.length === 0 ? "bg-gray-400" : "bg-emerald-600"}`}
           disabled={selectedMessages.length === 0}
         >
           <Text className="text-white font-medium">Receive</Text>
         </TouchableOpacity>
       </View>
 
+      {/* No messages or search results message */}
+      {filteredMessages.length === 0 && (
+        <View className="flex-1 justify-center items-center">
+          <FontAwesome name="exclamation-circle" size={50} color="#ccc" />
+          <Text className="text-gray-500 text-3xl mt-2">No Messages Found</Text>
+        </View>
+      )}
+
       {/* List of Messages */}
-      <FlatList
-        data={filteredMessages}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item: msg }) => (
-          <TouchableOpacity
-            onPress={() => handleSelectMessage(msg._id)}
-            className={`flex-row items-center p-3 rounded-lg mb-3 ${
-              selectedMessages.includes(msg._id)
-                ? "border-2 border-green-500"
-                : "bg-gray-200"
-            }`}
-          >
-            {selectedMessages.includes(msg._id) && (
-              <MaterialIcons
-                name="check-circle"
-                size={24}
-                color="#26CC00"
-                className="mr-3"
-              />
-            )}
-            <View className="bg-gray-300 w-12 h-12 p-2 rounded-full mr-3"></View>
-            <View className="flex-1">
-              <Text className="font-bold text-emerald-500 text-base">{msg.sender}</Text>
-              <Text className="text-gray-500 font-medium">{msg.message}</Text>
-            </View>
-            <Text className="text-gray-500 font-medium">{msg.time}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      {filteredMessages.length > 0 && (
+        <FlatList
+          data={filteredMessages}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item: msg }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectMessage(msg._id)}
+              className={`flex-row items-center p-3 rounded-lg mb-3 ${
+                selectedMessages.includes(msg._id) ? "border-2 border-green-500" : "bg-gray-200"
+              }`}
+            >
+              {selectedMessages.includes(msg._id) && (
+                <MaterialIcons
+                  name="check-circle"
+                  size={24}
+                  color="#26CC00"
+                  className="mr-3"
+                />
+              )}
+              <View className="bg-gray-300 w-12 h-12 p-2 rounded-full mr-3"></View>
+              <View className="flex-1">
+                <Text className="font-bold text-emerald-500 text-base">{msg.sender}</Text>
+                <Text className="text-gray-500 font-medium">{msg.message}</Text>
+              </View>
+              <Text className="text-gray-500 font-medium">{msg.time}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
 
       {/* Modal for Single Message */}
       {selectedMessage && (
@@ -299,7 +304,7 @@ const MessageList = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => handleRejectSingle(selectedMessage._id,"rejected")}
+                  onPress={() => handleRejectSingle(selectedMessage._id, "rejected")}
                   style={{
                     backgroundColor: "#F44336",
                     paddingVertical: 12,

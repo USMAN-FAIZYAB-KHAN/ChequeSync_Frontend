@@ -72,7 +72,6 @@ const MembersCheque = () => {
 
   const renderEmptyMessage = (month, filter) => {
     const filteredCheques = getFilteredCheques(month);
-
     if (filteredCheques.length === 0) {
       return (
         <View style={styles.emptyMessageContainer}>

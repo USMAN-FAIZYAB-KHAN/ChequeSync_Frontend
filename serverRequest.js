@@ -1,6 +1,6 @@
-const api_url = 'http://192.168.1.6:5000/api';
+// const api_url = 'http://192.168.100.11:5000/api';
 // const api_url = 'http://localhost:5000/api';
-// const api_url = 'http://192.168.3.101:5000/api';
+const api_url = 'http://192.168.3.101:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
 //10.200.254.243
 
@@ -140,13 +140,13 @@ export const getmembersCheque = async () =>{
 }
 export const getMembersPostedCheque = async () => {
     try {
+        
         const response = await fetch(`${api_url}/cheques/memberpostedcheque`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-
         if (!response.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
@@ -179,20 +179,19 @@ export const getAllMemberCheques = async () => {
 };
 
 
-export const updateChequeStatus = async (messageId, type) => {
+export const updateChequeStatus = async (messageId, status) => {
     try {
         const response = await fetch(`${api_url}/cheques/updatechequestatus`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({"messageId":messageId, "type": type})
+            body: JSON.stringify({"messageId":messageId, "status": status})
         });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
         const result = await response.json();
-        console.log(result)
         return result;
     } catch (error) {
         console.error("Error fetching member's posted cheques:", error.message);
