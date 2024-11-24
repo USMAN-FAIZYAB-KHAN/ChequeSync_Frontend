@@ -9,7 +9,7 @@ import {
   FlatList,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getMembersPostedCheque, updateChequeStatus } from "../../serverRequest.js"
+import { getMembersPostedCheque, updateChequeStatus } from "../../serverRequest.js";
 
 const memberLogo = require("../../assets/member-logo.png");
 
@@ -20,22 +20,22 @@ const MessageList = () => {
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
-  
+
+  // Fetch cheques from backend
   const fetchCheques = async () => {
     try {
       const response = await getMembersPostedCheque();
       const cheques = response.data.formattedCheques;
-      console.log(cheques)
       setMessages(cheques);
       setFilteredMessages(cheques);
     } catch (error) {
       console.error("Error fetching cheques:", error);
-    } 
+    }
   };
-  
+
   useEffect(() => {
     fetchCheques();
+    // console.log(cheques)
   }, []);
 
   const handleSelectAll = () => {
@@ -60,14 +60,51 @@ const MessageList = () => {
     }
   };
 
-  const handleReceive = async () => {
+  const handleChequeStatus = async (messageId, status) => {
+    try {
+      // Call the backend API to update cheque status
+      const response = await updateChequeStatus(messageId, status);
+      if (response.statusCode === 200) {
+        // Remove cheque from local state
+        setMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg._id !== messageId)
+        );
+        setFilteredMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg._id !== messageId)
+        );
+        setSelectedMessage(null); // Close the modal
+      } else {
+        console.error("Failed to update cheque status:", response.data);
+      }
+    } catch (error) {
+      console.error("Error updating cheque status:", error);
+    }
+  };
 
-    console.log("in s")
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
-    );
-    setSelectedMessages([]);
-    setIsSelectAll(false);
+  const handleRejectSingle = async (messageId) => {
+    await handleChequeStatus(messageId, "rejected");
+  };
+
+  const handleReceive = async () => {
+    try {
+      const promises = selectedMessages.map((id) =>
+        updateChequeStatus(id, "received")
+      );
+      await Promise.all(promises);
+
+      // Remove received cheques from local state
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+      );
+      setFilteredMessages((prevMessages) =>
+        prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+      );
+
+      setSelectedMessages([]);
+      setIsSelectAll(false);
+    } catch (error) {
+      console.error("Error receiving cheques:", error);
+    }
   };
 
   const handleSearch = (query) => {
@@ -78,18 +115,9 @@ const MessageList = () => {
     setFilteredMessages(filtered);
   };
 
-  const handleChequeStatus = async (messageId, type) => {
-    console.log(selectedMessage, messageId)
-    let res = updateChequeStatus(messageId, type)
-    console.log(res)
-  };
-
-  const handleRejectSingle = (messageId) => {
-    setSelectedMessage(null);
-  };
-
   return (
     <View className="flex-1 p-4">
+      {/* Search Bar */}
       <View className="flex-row items-center mb-4">
         <MaterialIcons name="search" size={20} color="#9ca3af" className="pr-2" />
         <TextInput
@@ -100,6 +128,7 @@ const MessageList = () => {
         />
       </View>
 
+      {/* Buttons */}
       <View className="flex-row justify-between items-center mb-4">
         <TouchableOpacity
           onPress={handleSelectAll}
@@ -111,7 +140,7 @@ const MessageList = () => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleReceive}
-          className={` py-[10px] px-10  rounded-full ${
+          className={`py-[10px] px-10 rounded-full ${
             selectedMessages.length === 0 ? "bg-gray-400" : "bg-emerald-600"
           }`}
           disabled={selectedMessages.length === 0}
@@ -120,13 +149,14 @@ const MessageList = () => {
         </TouchableOpacity>
       </View>
 
+      {/* List of Messages */}
       <FlatList
         data={filteredMessages}
         keyExtractor={(item) => item._id}
         renderItem={({ item: msg }) => (
           <TouchableOpacity
             onPress={() => handleSelectMessage(msg._id)}
-            className={`flex-row items-center p-3  rounded-lg mb-3 ${
+            className={`flex-row items-center p-3 rounded-lg mb-3 ${
               selectedMessages.includes(msg._id)
                 ? "border-2 border-green-500"
                 : "bg-gray-200"
@@ -140,18 +170,17 @@ const MessageList = () => {
                 className="mr-3"
               />
             )}
-            <View className="bg-gray-300 w-12 h-12 p-2 rounded-full mr-3">
-              {/* <Image className="w-10 h-10 rounded-full" source={memberLogo} /> */}
-            </View>
+            <View className="bg-gray-300 w-12 h-12 p-2 rounded-full mr-3"></View>
             <View className="flex-1">
-              <Text className="font-bold text-emerald-500 text-base text-e">{msg.sender}</Text>
-              <Text className="text-gray-500 font-medium ">{msg.message}</Text>
+              <Text className="font-bold text-emerald-500 text-base">{msg.sender}</Text>
+              <Text className="text-gray-500 font-medium">{msg.message}</Text>
             </View>
-            <Text className="text-gray-500 font-medium ">{msg.time}</Text>
+            <Text className="text-gray-500 font-medium">{msg.time}</Text>
           </TouchableOpacity>
         )}
       />
 
+      {/* Modal for Single Message */}
       {selectedMessage && (
         <Modal
           animationType="fade"
@@ -176,7 +205,7 @@ const MessageList = () => {
               </Text>
               <View className="w-64 mb-4">
                 <TouchableOpacity
-                  onPress={() => handleChequeStatus(selectedMessage._id, "receive")}
+                  onPress={() => handleChequeStatus(selectedMessage._id, "received")}
                   style={{
                     backgroundColor: "#4CAF50",
                     paddingVertical: 12,
@@ -196,7 +225,7 @@ const MessageList = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => handleRejectSingle(selectedMessage._id)}
+                  onPress={() => handleRejectSingle(selectedMessage._id,"rejected")}
                   style={{
                     backgroundColor: "#F44336",
                     paddingVertical: 12,
@@ -224,4 +253,4 @@ const MessageList = () => {
   );
 };
 
-export default MessageList;
+export default MessageList;

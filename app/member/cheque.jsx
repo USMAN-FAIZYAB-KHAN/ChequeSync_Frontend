@@ -133,7 +133,7 @@ const ChequeScreen = () => {
         renderItem={({ item }) => (
           <ChequeCard
             id={item._id}
-            date={new Date(item.updatedAt).toISOString().split('T')[0]}
+            date={item.date}
             status={item.status}
             month={item.month}
             image={item.image}

@@ -17,6 +17,7 @@ const UploadScreen = () => {
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFullScreen, setShowFullScreen] = useState(false);
+  const [base64Image, setBase64Image] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
@@ -45,13 +46,14 @@ const UploadScreen = () => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      base64: true,
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
+      setBase64Image(result.assets[0].base64);
     }
   };
 
@@ -65,7 +67,7 @@ const UploadScreen = () => {
     let result = await saveChequeRequest({
         memberId: '67350c318bf3ff24bfc3a74e',
         month: months.indexOf(selectedMonth) + 1,
-        image: selectedImage
+        image: base64Image,
     });
 
     console.log('Result:', result);
@@ -93,12 +95,14 @@ const UploadScreen = () => {
     }
 
     const result = await ImagePicker.launchCameraAsync({
+      base64: true,
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
+      setBase64Image(result.assets[0].base64);
     }
   };
 

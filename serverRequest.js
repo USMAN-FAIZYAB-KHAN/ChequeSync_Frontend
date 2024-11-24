@@ -1,4 +1,4 @@
-const api_url = 'http://192.168.100.11:5000/api';
+const api_url = 'http://192.168.1.6:5000/api';
 // const api_url = 'http://localhost:5000/api';
 // const api_url = 'http://192.168.3.101:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
@@ -7,6 +7,8 @@ const api_url = 'http://192.168.100.11:5000/api';
 
 export const saveChequeRequest = async (data) => {
     console.log("Saving cheque request...");
+    console.log("Size of data:", new Blob([JSON.stringify(data)]).size, "bytes");
+
     try {
         const response = await fetch(`${api_url}/cheques/create`, {
             method: 'POST',
@@ -120,7 +122,7 @@ export const getmembersCheque = async () =>{
             },
         });
 
-        console.log("Member")
+        console.log(response)
 
         if (!response.ok) {
             const error = await response.json();
@@ -155,6 +157,7 @@ export const getMembersPostedCheque = async () => {
         return { error: error.message };
     }
 };
+
 export const getAllMemberCheques = async () => {
     try {
         const response = await fetch(`${api_url}/cheques/allmembercheques`, {
@@ -167,6 +170,7 @@ export const getAllMemberCheques = async () => {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
         const result = await response.json();
+        console.log(result)
         return result;
     } catch (error) {
         console.error("Error fetching member's posted cheques:", error.message);
@@ -177,7 +181,7 @@ export const getAllMemberCheques = async () => {
 
 export const updateChequeStatus = async (messageId, type) => {
     try {
-        const response = await fetch(`${api_url}/cheques/allmembercheques`, {
+        const response = await fetch(`${api_url}/cheques/updatechequestatus`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

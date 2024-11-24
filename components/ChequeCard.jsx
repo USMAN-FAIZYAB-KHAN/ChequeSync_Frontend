@@ -36,6 +36,8 @@ const months = [
 const ChequeCard = ({ month, date, status, image }) => {
   const { borderColor, textColor } = getStatusStyles(status);
 
+  console.log(image);
+
   // State for modal visibility
   const [isModalVisible, setModalVisible] = useState(false);
 
@@ -99,6 +101,7 @@ const ChequeCard = ({ month, date, status, image }) => {
               style={styles.chequeImage}
               resizeMode="contain"
             />
+
 
           </View>
         </View>
