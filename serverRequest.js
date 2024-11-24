@@ -136,3 +136,40 @@ export const getmembersCheque = async () =>{
 
     }
 }
+export const getMembersPostedCheque = async () => {
+    try {
+        const response = await fetch(`${api_url}/cheques/memberpostedcheque`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const result = response.json();
+        return result;
+    } catch (error) {
+        console.error("Error fetching member's posted cheques:", error.message);
+        return { error: error.message };
+    }
+};
+export const getAllMemberCheques = async () => {
+    try {
+        const response = await fetch(`${api_url}/cheques/allmembercheques`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("Error fetching member's posted cheques:", error.message);
+        return { error: error.message };
+    }
+};
