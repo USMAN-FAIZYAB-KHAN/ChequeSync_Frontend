@@ -58,8 +58,10 @@ const UploadScreen = () => {
     }
 
     let result = await saveChequeRequest(
-      monthNames[selectedMonth],
-      selectedImage
+      {
+        month: months.indexOf(selectedMonth) + 1,
+        image: selectedImage,
+      }
     );
 
     console.log(result);

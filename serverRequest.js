@@ -81,3 +81,26 @@ export const automaticSignUp = async (data) => {
     }
 }
 
+export const saveChequeRequest = async (data) => {
+    try {
+        const response = await fetch(`${api_url}/cheques/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(`Error: ${error.message || response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log(result.statusCode);
+        return result
+    } catch (error) {
+        return error.message
+
+    }
+};
