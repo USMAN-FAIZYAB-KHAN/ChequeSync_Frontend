@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import ChequeCard from '../../components/ChequeCard';
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import ChequeCard from "../../components/ChequeCard";
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
+import { getmembersCheque } from "../../serverRequest.js";
 
 // Find ID of the user
 const _id = "67350c318bf3ff24bfc3a74e";
 
-const chequesData = [
-  { id: '1', date: '2024-09-15', status: 'Pending', month: 'September' },
-  { id: '2', date: '2024-10-01', status: 'Approved', month: 'October' },
-  { id: '3', date: '2024-10-05', status: 'Rejected', month: 'October' },
-  { id: '4', date: '2024-09-20', status: 'Approved', month: 'September' },
-];
-
 const ChequeScreen = () => {
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [selectedMonth, setSelectedMonth] = useState('All');
+  const [membercheques, setmembercheques] = useState([]);
+
+  useEffect(async () => {
+    const result = await getmembersCheque();
+    setmembercheques(result.data);
+  }, []);
+
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedMonth, setSelectedMonth] = useState("All");
+  const [selectedYear, setSelectedYear] = useState("All");
   const socket = useSocket();
 
   useEffect(() => {
@@ -25,7 +27,7 @@ const ChequeScreen = () => {
       socket.emit("registerUser", { userId: _id });
 
       // Confirmation listener
-      socket.on('receiveConfirmation', (message) => console.log(message));
+      socket.on("receiveConfirmation", (message) => console.log(message));
 
       // Handle socket errors
       socket.on("error", (error) => {
@@ -35,24 +37,27 @@ const ChequeScreen = () => {
   }, []);
 
   const filterCheques = () => {
-    return chequesData.filter((cheque) => {
-      const chequeDate = new Date(cheque.date);
-      const chequeMonth = chequeDate.getMonth() + 1;
+    return membercheques.filter((cheque) => {
       const isStatusMatch =
-        selectedStatus === "All" || cheque.status === selectedStatus;
+        selectedStatus == "All" || cheque.status == selectedStatus;
+
       const isMonthMatch =
-        selectedMonth === "All" || chequeMonth === parseInt(selectedMonth);
-      return isStatusMatch && isMonthMatch;
+        selectedMonth == "All" || cheque.month == selectedMonth;
+
+      const isYearMatch =
+        selectedYear == "All" || new Date(cheque.date).getFullYear() == selectedYear;
+
+      return isStatusMatch && isMonthMatch && isYearMatch;
     });
   };
 
   return (
-    <View className="flex-1 p-5 bg-gray-100">
+    <View className="flex-1 p-4 bg-gray-100">
       {/* Filters Section */}
       <View className="flex-row justify-between items-center mb-5">
         {/* Status Picker */}
         <View className="flex-1 mx-2">
-          <Text className="text-lg font-semibold mb-2 text-gray-700">Status</Text>
+          <Text className="text-lg font-semibold mb-2 text-gray-700 text-center">Status</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedStatus}
@@ -61,16 +66,17 @@ const ChequeScreen = () => {
               dropdownIconColor="#2563eb" // Dropdown arrow color
             >
               <Picker.Item label="All" value="All" />
-              <Picker.Item label="Pending" value="Pending" />
-              <Picker.Item label="Approved" value="Approved" />
-              <Picker.Item label="Rejected" value="Rejected" />
+              <Picker.Item label="Posted" value="posted" />
+              <Picker.Item label="Received" value="received" />
+              <Picker.Item label="Approved" value="approved" />
+              <Picker.Item label="Rejected" value="rejected" />
             </Picker>
           </View>
         </View>
 
         {/* Month Picker */}
         <View className="flex-1 mx-2">
-          <Text className="text-lg font-semibold mb-2 text-gray-700">Month</Text>
+          <Text className="text-lg font-semibold mb-2 text-gray-700 text-center">Month</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedMonth}
@@ -83,7 +89,33 @@ const ChequeScreen = () => {
               <Picker.Item label="February" value="2" />
               <Picker.Item label="March" value="3" />
               <Picker.Item label="April" value="4" />
-              {/* Add other months as needed */}
+              <Picker.Item label="May" value="5" />
+              <Picker.Item label="June" value="6" />
+              <Picker.Item label="July" value="7" />
+              <Picker.Item label="August" value="8" />
+              <Picker.Item label="September" value="9" />
+              <Picker.Item label="October" value="10" />
+              <Picker.Item label="November" value="11" />
+              <Picker.Item label="December" value="12" />
+            </Picker>
+          </View>
+        </View>
+
+        {/* Year Picker */}
+        <View className="flex-1 mx-2">
+          <Text className="text-lg font-semibold mb-2 text-gray-700 text-center">Year</Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedYear}
+              onValueChange={(itemValue) => setSelectedYear(itemValue)}
+              style={styles.picker}
+              dropdownIconColor="#2563eb"
+            >
+              <Picker.Item label="All" value="All" />
+              <Picker.Item label="2023" value="2023" />
+              <Picker.Item label="2024" value="2024" />
+              <Picker.Item label="2025" value="2025" />
+              {/* Add other years as needed */}
             </Picker>
           </View>
         </View>
@@ -92,9 +124,14 @@ const ChequeScreen = () => {
       {/* Cheque List */}
       <FlatList
         data={filterCheques()}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <ChequeCard id={item.id} date={item.date} status={item.status} month={item.month} />
+          <ChequeCard
+            id={item._id}
+            date={new Date(item.updatedAt).toISOString().split('T')[0]}
+            status={item.status}
+            month={item.month}
+          />
         )}
       />
     </View>
@@ -103,12 +140,12 @@ const ChequeScreen = () => {
 
 const styles = StyleSheet.create({
   pickerContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderWidth: 1,
-    borderColor: '#e5e7eb', // Tailwind gray-300
+    borderColor: "#e5e7eb", // Tailwind gray-300
     borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: '#000',
+    overflow: "hidden",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -117,9 +154,9 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     paddingHorizontal: 10,
-    color: '#374151', // Tailwind gray-700
+    color: "#374151", // Tailwind gray-700
     fontSize: 16,
-    fontFamily: 'System',
+    fontFamily: "System",
   },
 });
 
