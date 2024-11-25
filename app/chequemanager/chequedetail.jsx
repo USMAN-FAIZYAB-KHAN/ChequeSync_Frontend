@@ -224,7 +224,7 @@ const MessageList = () => {
       {filteredMessages.length === 0 && (
         <View className="flex-1 justify-center items-center">
           <FontAwesome name="exclamation-circle" size={50} color="#ccc" />
-          <Text className="text-gray-500 text-3xl mt-2">No Messages Found</Text>
+          <Text className="text-gray-500 text-2xl mt-2">No Messages Found</Text>
         </View>
       )}
 
