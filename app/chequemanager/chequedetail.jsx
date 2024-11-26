@@ -58,24 +58,30 @@ const MessageList = () => {
 
     // Listener for notifications
     const handleNotification = async (notification) => {
-      let message = notification.message
-      try {
-        const notificationMessage =
-          typeof message === "string" ? JSON.parse(message).message : message.message;
+      console.log(notification);
     
-        if (!notificationMessage) {
+      // Extract the message directly from the notification
+      console.log(notification)
+      const message = notification.notification.message; // Adjusted to the correct structure
+      console.log(message);
+    
+      try {
+        if (!message) {
           console.error("Invalid notification payload");
           return;
         }
+
     
+        // Schedule the notification
         await Notifications.scheduleNotificationAsync({
           content: {
             title: "Cheque Posted",
-            body: notificationMessage,
+            body: message,
             sound: "default",
           },
-          trigger: null,
+          trigger: null, // This triggers the notification immediately
         });
+    
         console.log("Notification scheduled successfully");
       } catch (error) {
         console.error("Error scheduling notification:", error);

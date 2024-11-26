@@ -33,10 +33,10 @@ const months = [
   "December",
 ];
 
-const ChequeCard = ({ month, date, status, image }) => {
+const ChequeCard = ({ id, month, date, status, image }) => {
   const { borderColor, textColor } = getStatusStyles(status);
 
-  console.log(image);
+  console.log(typeof(image), id)
 
   // State for modal visibility
   const [isModalVisible, setModalVisible] = useState(false);

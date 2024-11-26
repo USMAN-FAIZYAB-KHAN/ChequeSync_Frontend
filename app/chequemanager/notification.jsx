@@ -24,7 +24,7 @@ export default function Notification() {
         console.error("Error fetching notifications:", error);
       }
     };
-
+    console.log("in cheque notification")
     fetchNotifications();
   }, []); // Runs once on component mount
 
@@ -35,6 +35,7 @@ export default function Notification() {
       console.log(notification);
     
       // Extract the message directly from the notification
+      console.log(notification)
       const message = notification.notification.message; // Adjusted to the correct structure
       console.log(message);
     
@@ -73,11 +74,7 @@ export default function Notification() {
     socket.on("receiveNotification", handleNotification);
     socket.on("error", handleError);
 
-    // Cleanup the socket event listeners when the component unmounts
-    return () => {
-      socket.off("receiveNotification", handleNotification);
-      socket.off("error", handleError);
-    };
+   
   }, [socket]); // Only re-run if socket changes
 
   return (
@@ -90,7 +87,7 @@ export default function Notification() {
           keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()} // Use index if id is missing
           renderItem={({ item }) => (
             <View style={styles.notificationCard}>
-              <Text style={styles.message}><br />{item.message}</Text>
+              <Text style={styles.message}>{item.message}</Text>
               {/* Time in the right corner */}
               <Text style={styles.time}>
                 {moment(item.updatedAt).format('MMM DD, YYYY h:mm A')}
