@@ -134,7 +134,7 @@ const MessageList = () => {
       quality: 1,
       base64: true
     });
-
+    console.log("branchMnager...................................",result.assets[0].base64)
     if (!result.canceled) {
       setCapturedImage(result.assets[0].uri); // Store the captured photo base64
       setSelectedBase64(result.assets[0].base64)

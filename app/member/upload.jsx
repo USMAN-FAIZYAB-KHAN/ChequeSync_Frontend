@@ -12,15 +12,24 @@ import { Picker } from "@react-native-picker/picker";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { saveChequeRequest } from "../../serverRequest.js"
 import { useRouter } from 'expo-router';
-
+import { useLocalSearchParams } from 'expo-router';
 const UploadScreen = () => {
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState(null);
+  const {UpdatedImage} = useLocalSearchParams();
+
+
+  console.log('UpdateImage',UpdatedImage.uri)
+  console.log('UpdateImage',UpdatedImage.base64)
+  // console.log(UpdateImage)
+  // console.log('up.............',selectedImage)
+
+
+  const [selectedImage, setSelectedImage] = useState(UpdatedImage.uri || null); // Use passed image as default
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [base64Image, setBase64Image] = useState("");
+  const [base64Image, setBase64Image] = useState(UpdatedImage.base64 || "");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-
+  
   const months = [
     "January",
     "February",
@@ -58,29 +67,22 @@ const UploadScreen = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("Handling submit...");
     if (!selectedMonth) {
         alert("Please select a month!");
         return;
     }
 
     let result = await saveChequeRequest({
-        memberId: '67350c318bf3ff24bfc3a74e',
+        memberId: '67350024a70877fe03ff5052',
         month: months.indexOf(selectedMonth) + 1,
         image: base64Image,
     });
-
-    console.log('Result:', result);
-
-    // Check for success status
     if (result && result.statusCode === 201) {
         setSelectedImage(null);
         setSelectedMonth("");
         setShowFullScreen(false);
-        // Redirect to the cheque page
         router.push("/member/cheque");
     } else {
-        // Handle errors or unexpected results
         alert(result || "An error occurred while saving the cheque request.");
     }
 

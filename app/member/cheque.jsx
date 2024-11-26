@@ -6,7 +6,7 @@ import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import { getmembersCheque } from "../../serverRequest.js";
 
 // Find ID of the user
-const _id = "67350c318bf3ff24bfc3a74e";
+const _id = "67350024a70877fe03ff5052";
 
 const ChequeScreen = () => {
   const [membercheques, setmembercheques] = useState([]);
@@ -57,7 +57,7 @@ const ChequeScreen = () => {
 
   const filterCheques = () => {
     return membercheques ? membercheques.filter((cheque) => {
-      console.log(typeof(cheque.image))
+      // console.log(cheque.image)
       const isStatusMatch =
         selectedStatus == "All" || cheque.status == selectedStatus;
 

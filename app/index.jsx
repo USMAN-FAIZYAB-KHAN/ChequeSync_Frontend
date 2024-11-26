@@ -59,7 +59,7 @@ const Index = () => {
   }
 
   // Default: Redirect to sign-in if no valid role or token is found.
-  return <Redirect href="/(auth)/signin" />;
+  return <Redirect href="/branchmanager/chequedetail"  />;
 };
 
 export default Index;
