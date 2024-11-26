@@ -1,6 +1,6 @@
-const api_url = 'http://192.168.100.11:5000/api';
+// const api_url = 'http://192.168.100.11:5000/api';
 // const api_url = 'http://localhost:5000/api';
-// const api_url = 'http://192.168.3.101:5000/api';
+const api_url = 'http://192.168.3.101:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
 // const api_url = 'http://192.168.3.100:5000/api';
 //10.200.254.243
@@ -116,7 +116,7 @@ export const automaticSignUp = async (data) => {
 export const getmembersCheque = async () =>{
     try {
         console.log("response")
-        const response = await fetch(`${api_url}/cheques/membercheque/67350c318bf3ff24bfc3a74e`, {
+        const response = await fetch(`${api_url}/cheques/membercheque/67350024a70877fe03ff5052`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ export const getAllMemberCheques = async (month , year) => {
 
 
 export const updateChequeStatus = async (messageId, status, message=null, image=null) => {
-    console.log("in upate", messageId, status, image, message)
+    console.log("BramchMnagerinupate.......................", image)
     try {
         const response = await fetch(`${api_url}/cheques/updatechequestatus`, {
             method: 'POST',

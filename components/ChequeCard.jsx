@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, Modal, Image, StyleSheet } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
-
+import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 // Function to get border and text color based on status
 const getStatusStyles = (status) => {
   switch (status) {
@@ -35,14 +36,39 @@ const months = [
 
 const ChequeCard = ({ id, month, date, status, image }) => {
   const { borderColor, textColor } = getStatusStyles(status);
+  const router = useRouter();
+  const takePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert("Permission to access the camera is required!");
+      return;
+    }
 
-  console.log(typeof(image), id)
+    const result = await ImagePicker.launchCameraAsync({
+      base64: true,
+      allowsEditing: true,
+      quality: 1,
+    });
+    console.log("updated image.........",result)
+    if (!result.canceled) {
+      router.push({
+        pathname: "/member/upload",
+        params: {
+          UpdatedImage: result.assets[0],
+        },
+      });
+    }
+  };
+
+  console.log("memberimage-----------------------", image);
 
   // State for modal visibility
   const [isModalVisible, setModalVisible] = useState(false);
 
   return (
-    <View className={`relative p-4 rounded-lg  border-2 ${borderColor} mb-4 bg-white`}>
+    <View
+      className={`relative p-4 rounded-lg  border-2 ${borderColor} mb-4 bg-white`}
+    >
       {/* Action Icons (Top Right) */}
       <View className="absolute top-3 right-3 flex flex-row gap-4">
         {/* View Icon */}
@@ -52,7 +78,7 @@ const ChequeCard = ({ id, month, date, status, image }) => {
 
         {/* Edit Icon (Visible only if status is Pending) */}
         {status === "posted" && (
-          <Pressable onPress={() => alert("Edit Pressed")}>
+          <Pressable onPress={() => takePhoto()}>
             <MaterialIcons name="edit" size={20} color="#f59e0b" />
           </Pressable>
         )}
@@ -101,8 +127,6 @@ const ChequeCard = ({ id, month, date, status, image }) => {
               style={styles.chequeImage}
               resizeMode="contain"
             />
-
-
           </View>
         </View>
       </Modal>
