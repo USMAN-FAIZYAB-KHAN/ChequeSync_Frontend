@@ -1,7 +1,8 @@
-// const api_url = 'http://192.168.100.11:5000/api';
+const api_url = 'http://192.168.100.11:5000/api';
 // const api_url = 'http://localhost:5000/api';
-const api_url = 'http://192.168.1.6:5000/api';
+// const api_url = 'http://192.168.3.101:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
+// const api_url = 'http://192.168.3.100:5000/api';
 //10.200.254.243
 
 
@@ -157,10 +158,10 @@ export const getMembersPostedCheque = async () => {
         return { error: error.message };
     }
 };
-
-export const getAllMemberCheques = async () => {
+export const getAllMemberCheques = async (month , year) => {
     try {
-        const response = await fetch(`${api_url}/cheques/allmembercheques`, {
+        let url = `${api_url}/cheques/allmembercheques?year=${year}&month=${month}`;
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -169,24 +170,32 @@ export const getAllMemberCheques = async () => {
         if (!response.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
+
         const result = await response.json();
-        console.log(result)
-        return result;
+        if (result?.data?.cheques) {
+            return result
+        } else {
+            return [];
+        }
+        
+
     } catch (error) {
-        console.error("Error fetching member's posted cheques:", error.message);
-        return { error: error.message };
-    }
+        console.error("Error fetching member's filtered cheques:", error.message)
+        }
 };
 
 
-export const updateChequeStatus = async (messageId, status) => {
+
+
+export const updateChequeStatus = async (messageId, status, message=null, image=null) => {
+    console.log("in upate", messageId, status, image, message)
     try {
         const response = await fetch(`${api_url}/cheques/updatechequestatus`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({"messageId":messageId, "status": status})
+            body: JSON.stringify({"messageId":messageId, "status": status, "message": message, "image": image})
         });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -218,6 +227,29 @@ export const getNotifications = async (membertype) => {
         return result;
     } catch (error) {
         console.error("Error fetching member's posted cheques:", error.message);
+        return { error: error.message };
+    }
+};
+
+
+export const getBranchReceivedCheque = async () => {
+    console.log("ENT")
+    try {
+        
+        const response = await fetch(`${api_url}/cheques/branchReceivedCheques`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const result = response.json();
+        console.log(result)
+        return result;
+    } catch (error) {
+        console.error("Error fetching member's received cheques:", error.message);
         return { error: error.message };
     }
 };

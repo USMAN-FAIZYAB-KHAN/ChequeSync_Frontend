@@ -58,24 +58,30 @@ const MessageList = () => {
 
     // Listener for notifications
     const handleNotification = async (notification) => {
-      let message = notification.message
-      try {
-        const notificationMessage =
-          typeof message === "string" ? JSON.parse(message).message : message.message;
+      console.log(notification);
     
-        if (!notificationMessage) {
+      // Extract the message directly from the notification
+      console.log(notification)
+      const message = notification.notification.message; // Adjusted to the correct structure
+      console.log(message);
+    
+      try {
+        if (!message) {
           console.error("Invalid notification payload");
           return;
         }
+
     
+        // Schedule the notification
         await Notifications.scheduleNotificationAsync({
           content: {
             title: "Cheque Posted",
-            body: notificationMessage,
+            body: message,
             sound: "default",
           },
-          trigger: null,
+          trigger: null, // This triggers the notification immediately
         });
+    
         console.log("Notification scheduled successfully");
       } catch (error) {
         console.error("Error scheduling notification:", error);
@@ -224,7 +230,7 @@ const MessageList = () => {
       {filteredMessages.length === 0 && (
         <View className="flex-1 justify-center items-center">
           <FontAwesome name="exclamation-circle" size={50} color="#ccc" />
-          <Text className="text-gray-500 text-3xl mt-2">No Messages Found</Text>
+          <Text className="text-gray-500 text-2xl mt-2">No Messages Found</Text>
         </View>
       )}
 

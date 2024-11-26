@@ -57,6 +57,7 @@ const ChequeScreen = () => {
 
   const filterCheques = () => {
     return membercheques ? membercheques.filter((cheque) => {
+      console.log(typeof(cheque.image))
       const isStatusMatch =
         selectedStatus == "All" || cheque.status == selectedStatus;
 

@@ -14,6 +14,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import * as Notifications from "expo-notifications";
+import { getBranchReceivedCheque, updateChequeStatus } from "../../serverRequest.js";
 
 
 const _id = "67334eb57737198f6556ec4d"
@@ -33,8 +34,28 @@ const MessageList = () => {
   const [dummyMessages, setDummyMessages] = useState([]);
   const [defaultView, setDefaultView] = useState(true); // Default view control
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [selectedBase64, setSelectedBase64] = useState(null)
 
   const socket = useSocket();
+
+
+  const fetchCheques = async () => {
+    try {
+      const response = await getBranchReceivedCheque();
+      console.log(response.data)
+      const cheques = response.data.formattedCheques;
+      setMessages(cheques);
+      setFilteredMessages(cheques);
+      
+    } catch (error) {
+      console.error("Error fetching cheques:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCheques();
+    // console.log(cheques)
+  }, []);
 
 
   useEffect(() => {
@@ -68,12 +89,12 @@ const MessageList = () => {
       try {
         const notificationMessage =
           typeof message === "string" ? JSON.parse(message).message : message.message;
-    
+
         if (!notificationMessage) {
           console.error("Invalid notification payload");
           return;
         }
-    
+
         await Notifications.scheduleNotificationAsync({
           content: {
             title: "Checque Posted",
@@ -87,7 +108,7 @@ const MessageList = () => {
         console.error("Error scheduling notification:", error);
       }
     };
-    
+
 
     // Listener for errors
     const handleError = (error) => {
@@ -100,42 +121,7 @@ const MessageList = () => {
     socket.on("error", handleError);
 
 
-  }, [socket, _id]); // Dependencies: socket and _id
-
-  useEffect(() => {
-    const dummyData = {
-      cheques: [
-        {
-          _id: "60c72b2f9e1d3d001c8b4fa1",
-          sender: "John Doe",
-          amount: 5000,
-          image: "https://via.placeholder.com/150",
-          message: "John’s cheque image for March.",
-          time: "20:02",
-        },
-        {
-          _id: "60c72b2f9e1d3d001c8b4fa2",
-          sender: "Jane Doe",
-          amount: 3000,
-          image: "https://via.placeholder.com/150",
-          message: "Jane’s cheque image for April.",
-          time: "21:15",
-        },
-      ],
-    };
-    const dummyMsgs = [
-      "Cheque needs verification.",
-      "Invalid amount, please resubmit.",
-      "Cheque rejected due to errors.",
-      "Incorrect account details provided.",
-    ];
-    setMessages(dummyData.cheques);
-    setFilteredMessages(dummyData.cheques);
-    setDummyMessages(dummyMsgs);
-
-
-    console.log("ENTER")
-  }, []);
+  }, [socket, _id]);
 
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -146,12 +132,15 @@ const MessageList = () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
+      base64: true
     });
 
     if (!result.canceled) {
-      setCapturedImage(result.assets[0].uri); // Store the captured photo URI
+      setCapturedImage(result.assets[0].uri); // Store the captured photo base64
+      setSelectedBase64(result.assets[0].base64)
       setMessageInputVisible(true); // Show the message input after photo capture
       setDefaultView(false); // Disable default view
+
       return result.assets[0].uri;
     }
     return null;
@@ -197,23 +186,25 @@ const MessageList = () => {
   };
 
   // Handle receiving single message (remove it from the list)
-  const handleReceiveSingle = (messageId) => {
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => msg._id !== messageId)
-    );
-    setSelectedMessage(null); // Close modal after receiving message
+  const handleReceiveSingle = async (messageId, status) => {
+    console.log("in receive", messageId, status)
+    await handleChequeStatus(messageId,status );
+    // setMessages((prevMessages) =>
+    //   prevMessages.filter((msg) => msg._id !== messageId)
+    // );
+    // setSelectedMessage(null); // Close modal after receiving message
   };
 
-  // Handle receiving multiple messages (remove selected messages from the list)
-  const handleReceive = () => {
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
-    );
-    setSelectedMessages([]); // Clear selected messages
-    setIsSelectAll(false); // Deactivate Select All
-  };
+  // // Handle receiving multiple messages (remove selected messages from the list)
+  // const handleReceive = () => {
+  //   setMessages((prevMessages) =>
+  //     prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+  //   );
+  //   setSelectedMessages([]); // Clear selected messages
+  //   setIsSelectAll(false); // Deactivate Select All
+  // };
   const handleRejectSingle = async (messageId) => {
-    const photoUri = await takePhoto();
+     const photoUri = await takePhoto();
     if (photoUri) {
       setRejectedImages((prev) => ({
         ...prev,
@@ -223,14 +214,85 @@ const MessageList = () => {
     }
   };
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    const dummyMsgs = [
+      "Cheque needs verification.",
+      "Invalid amount, please resubmit.",
+      "Cheque rejected due to errors.",
+      "Incorrect account details provided.",
+    ];
+    setDummyMessages(dummyMsgs);
+    console.log("ENTER")
+  }, [])
+
+  const handleSubmit = async (messageId, status) => {
+     
+
+    await handleChequeStatus(messageId, status);
+
+
     setCapturedImage(false);
     setCustomMessage("");
     setMessageInputVisible(false);
     setSelectedMessage(null);
   };
 
+  const handleChequeStatus = async (messageId, status) => {
+    console.log("in handle cheque status", selectedBase64)
+    try {
+      const response = await updateChequeStatus(messageId, status, customMessage, selectedBase64);
+      if (response.statusCode === 200) {
+        setSelectedBase64(null)
+        setMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg._id !== messageId)
+        );
+        setFilteredMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg._id !== messageId)
+        );
+        setSelectedMessage(null);
+      } else {
+        console.error("Failed to update cheque status:", response.data);
+      }
+    } catch (error) {
+      console.error("Error updating cheque status:", error);
+    }
+  };
+
+  // const handleRejectSingle = async (messageId) => {
+  //   const photoUri = await takePhoto();
+  //   if (photoUri) {
+  //     setRejectedImages((prev) => ({
+  //       ...prev,
+  //       [messageId]: photoUri,
+  //     }));
+  //     setCapturedImage(true);
+  //   }
+  //   // await handleChequeStatus(messageId, status, msg);
+  // };
+
+  const handleReceive = async () => {
+    try {
+      const promises = selectedMessages.map((id) =>
+        updateChequeStatus(id, "approved")
+      );
+      await Promise.all(promises);
+
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+      );
+      setFilteredMessages((prevMessages) =>
+        prevMessages.filter((msg) => !selectedMessages.includes(msg._id))
+      );
+
+      setSelectedMessages([]);
+      setIsSelectAll(false);
+    } catch (error) {
+      console.error("Error receiving cheques:", error);
+    }
+  };
+
   const closeModal = () => {
+    
     setSelectedMessage(null);
     setCapturedImage(false);
     setMessageInputVisible(false);
@@ -341,7 +403,7 @@ const MessageList = () => {
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
                       style={styles.buttonStyle}
-                      onPress={() => handleReceiveSingle(selectedMessage._id)}
+                      onPress={() => handleReceiveSingle(selectedMessage._id, 'approved')}
                     >
                       <Text style={styles.buttonText}>Approve</Text>
                     </TouchableOpacity>
@@ -380,7 +442,7 @@ const MessageList = () => {
                       styles.buttonStyle,
                       { alignSelf: "center", marginTop: 10 },
                     ]}
-                    onPress={handleSubmit}
+                    onPress={()=>handleSubmit(selectedMessage._id, 'rejected')}
                   >
                     <Text
                       style={[styles.submitButton, styles.submitButtonText]}
