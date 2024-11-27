@@ -15,19 +15,17 @@ import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 const UploadScreen = () => {
   const router = useRouter();
-  const {UpdatedImage} = useLocalSearchParams();
+  const { uri, base64, month } = useLocalSearchParams();
 
 
-  console.log('UpdateImage',UpdatedImage.uri)
-  console.log('UpdateImage',UpdatedImage.base64)
-  // console.log(UpdateImage)
-  // console.log('up.............',selectedImage)
+  console.log('UpdateImage', uri)
+  console.log('UpdateImage',  base64)
 
 
-  const [selectedImage, setSelectedImage] = useState(UpdatedImage.uri || null); // Use passed image as default
+  const [selectedImage, setSelectedImage] = useState(uri || null); // Use passed image as default
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [base64Image, setBase64Image] = useState(UpdatedImage.base64 || "");
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [base64Image, setBase64Image] = useState(base64 || "");
+  const [selectedMonth, setSelectedMonth] = useState(month || "");  
   const [isFocused, setIsFocused] = useState(false);
   
   const months = [

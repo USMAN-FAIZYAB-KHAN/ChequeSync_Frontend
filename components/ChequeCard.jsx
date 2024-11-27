@@ -54,7 +54,9 @@ const ChequeCard = ({ id, month, date, status, image }) => {
       router.push({
         pathname: "/member/upload",
         params: {
-          UpdatedImage: result.assets[0],
+          uri: result.assets[0].uri,
+          base64: result.assets[0].base64,
+          month: months[month - 1],
         },
       });
     }
