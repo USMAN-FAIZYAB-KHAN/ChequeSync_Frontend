@@ -13,19 +13,23 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { saveChequeRequest } from "../../serverRequest.js"
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
+import { auth } from "../../global/global.js";
+
+
+
 const UploadScreen = () => {
+  
   const router = useRouter();
-  const { uri, base64, month } = useLocalSearchParams();
+  const {uri, Base64, month} = useLocalSearchParams();
 
 
-  console.log('UpdateImage', uri)
-  console.log('UpdateImage',  base64)
+ 
 
 
-  const [selectedImage, setSelectedImage] = useState(uri || null); // Use passed image as default
+  const [selectedImage, setSelectedImage] = useState(UpdatedImage?UpdatedImage.uri:null); // Use passed image as default
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [base64Image, setBase64Image] = useState(base64 || "");
-  const [selectedMonth, setSelectedMonth] = useState(month || "");  
+  const [base64Image, setBase64Image] = useState(UpdatedImage?UpdatedImage.base64:"");
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   
   const months = [
@@ -71,7 +75,7 @@ const UploadScreen = () => {
     }
 
     let result = await saveChequeRequest({
-        memberId: '67350024a70877fe03ff5052',
+        memberId: auth.id,
         month: months.indexOf(selectedMonth) + 1,
         image: base64Image,
     });

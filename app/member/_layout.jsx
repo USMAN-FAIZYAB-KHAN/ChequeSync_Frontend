@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-// import { LinearGradient } from 'expo-linear-gradient';
-import { SocketProvider, useSocket } from "../../context/socket.js"; // Adjust path as necessary
-import ChequeScreen from "./cheque.jsx";
+import { SocketProvider } from "../../context/socket.js"; // Adjust path as necessary
+import Header from "../header.jsx";  // Ensure path is correct
+import { getUserdetail } from "../../serverRequest.js"; // Ensure path is correct
+import { auth } from "../../global/global.js";
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: 'transparent', // Use gradient background
+    backgroundColor: 'transparent',
     borderTopWidth: 0,
     height: 70,
     elevation: 10,
@@ -26,11 +27,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#CC2B52',
     padding: 10,
     borderTopLeftRadius: 15,
-
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 35,
     shadowColor: '#D4BEE4',
-    // shadowOffset: { width: 5, height: 5 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
     height: 70,
@@ -43,12 +42,33 @@ const styles = StyleSheet.create({
 });
 
 const Layout = () => {
+  const [userDetails, setUserDetails] = useState({});
+  const _id = auth.id
 
- 
+  const fetchgetUserdetail = async () => {
+    try {
+      const Response = await getUserdetail(_id);
+      const user = Response.data.user;
+      setUserDetails({
+        userId: user._id,
+        Type: user.type,
+        username: `${user.firstName} ${user.lastName}`,
+        email: user.userEmail,
+      });
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
 
+  useEffect(() => {
+    fetchgetUserdetail();
+  }, []);
 
   return (
     <SocketProvider>
+      {Object.keys(userDetails).length > 0 && (
+        <Header userDetails={userDetails} /> 
+      )}
 
       <Tabs
         screenOptions={({ route }) => ({
@@ -56,11 +76,10 @@ const Layout = () => {
             let iconName;
             let iconStyle = focused ? styles.activeTab : styles.inactiveTab;
 
-            // Assign icon names based on route name
             if (route.name === 'cheque') {
-              iconName = "money-check-alt";  // Alternative icon name
+              iconName = "money-check-alt";
             } else if (route.name === 'upload') {
-              iconName = "cloud-upload-alt";  // Commonly available in FontAwesome5
+              iconName = "cloud-upload-alt";
             } else if (route.name === 'notification') {
               iconName = "bell";
             }
@@ -77,7 +96,8 @@ const Layout = () => {
           tabBarActiveTintColor: '#ffffff',
           tabBarInactiveTintColor: '#888',
           tabBarStyle: styles.tabBar,
-          tabBarShowLabel: false, // Label is custom-rendered inside icon
+          tabBarShowLabel: false,
+          headerShown: false
         })}
       >
         <Tabs.Screen
@@ -94,19 +114,6 @@ const Layout = () => {
         />
       </Tabs>
     </SocketProvider>
-    // <LinearGradient
-    //   // colors={['#8ec5fc', '#e0c3fc']}
-    //   // start={{ x: 0, y: 0 }}
-    //   // end={{ x: 1, y: 1 }}
-    //   // style={{ flex: 1 }}
-    //   colors={['#000000', '#3C3D37']}  // Example new colors
-    //   start={{ x: 0, y: 0 }}
-    //   end={{ x: 1, y: 1 }}
-    //   style={{ flex: 1 }}
-
-    // >
-
-    // </LinearGradient>
   );
 };
 
