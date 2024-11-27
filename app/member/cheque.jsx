@@ -4,17 +4,20 @@ import { Picker } from "@react-native-picker/picker";
 import ChequeCard from "../../components/ChequeCard";
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import { getmembersCheque } from "../../serverRequest.js";
+import * as Notifications from "expo-notifications";
+import { auth } from "../../global/global.js";
 
 // Find ID of the user
-const _id = "67350024a70877fe03ff5052";
 
 const ChequeScreen = () => {
+  const _id = auth.id;
+  const accessToken= auth.accessToken
   const [membercheques, setmembercheques] = useState([]);
 
   useEffect(() => {
     const calling = async () => {
 
-      const result = await getmembersCheque();
+      const result = await getmembersCheque(_id, accessToken);
       setmembercheques(result.data);
     }
 
@@ -25,11 +28,12 @@ const ChequeScreen = () => {
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [selectedYear, setSelectedYear] = useState("All");
   const socket = useSocket();
-
+  
   useEffect(() => {
     if (!socket) return;
 
     // Register user when socket connects
+    console.log("_id", _id, auth.id)
     socket.emit("registerUser", { userId: _id });
 
     // Listener for confirmation
@@ -38,8 +42,35 @@ const ChequeScreen = () => {
     };
 
     // Listener for notifications
-    const handleNotification = (message) => {
-      console.log("Notification received:", message);
+    const handleNotification = async (notification) => {
+      console.log(notification);
+    
+      // Extract the message directly from the notification
+      console.log(notification)
+      const message = notification.notification.message; // Adjusted to the correct structure
+      console.log(message);
+    
+      try {
+        if (!message) {
+          console.error("Invalid notification payload");
+          return;
+        }
+
+    
+        // Schedule the notification
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Cheque Status",
+            body: message,
+            sound: "default",
+          },
+          trigger: null, // This triggers the notification immediately
+        });
+    
+        console.log("Notification scheduled successfully");
+      } catch (error) {
+        console.error("Error scheduling notification:", error);
+      }
     };
 
     // Listener for errors

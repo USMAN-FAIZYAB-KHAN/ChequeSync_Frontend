@@ -13,13 +13,15 @@ import { FontAwesome } from "@expo/vector-icons";
 import { getMembersPostedCheque, updateChequeStatus } from "../../serverRequest.js";
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import * as Notifications from "expo-notifications";
+import { auth } from "../../global/global.js";
 
 
-const _id = "67350023a70877fe03ff504e"
 
 const memberLogo = require("../../assets/member-logo.png");
 
 const MessageList = () => {
+  const _id = auth.id
+  const accessToken = auth.accessToken
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
@@ -28,7 +30,8 @@ const MessageList = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const socket = useSocket();
-
+  console.log(":IN CHEQUE")
+  console.log("In cheque manager")
 
   useEffect(() => {
     // Request permissions for notifications
@@ -59,19 +62,19 @@ const MessageList = () => {
     // Listener for notifications
     const handleNotification = async (notification) => {
       console.log(notification);
-    
+
       // Extract the message directly from the notification
       console.log(notification)
       const message = notification.notification.message; // Adjusted to the correct structure
       console.log(message);
-    
+
       try {
         if (!message) {
           console.error("Invalid notification payload");
           return;
         }
 
-    
+
         // Schedule the notification
         await Notifications.scheduleNotificationAsync({
           content: {
@@ -81,13 +84,13 @@ const MessageList = () => {
           },
           trigger: null, // This triggers the notification immediately
         });
-    
+
         console.log("Notification scheduled successfully");
       } catch (error) {
         console.error("Error scheduling notification:", error);
       }
     };
-    
+
 
     // Listener for errors
     const handleError = (error) => {
@@ -101,11 +104,12 @@ const MessageList = () => {
 
 
   }, [socket, _id]); // Dependencies: socket and _id
-  
-  
+
+
   const fetchCheques = async () => {
     try {
-      const response = await getMembersPostedCheque();
+      console.log("In cheque", accessToken)
+      const response = await getMembersPostedCheque(accessToken);
       const cheques = response.data.formattedCheques;
       setMessages(cheques);
       setFilteredMessages(cheques);
@@ -141,9 +145,12 @@ const MessageList = () => {
     }
   };
 
-  const handleChequeStatus = async (messageId, status) => {
+  const handleChequeStatus = async (messageId, status, Role) => {
+    console.log("IN cheS")
     try {
-      const response = await updateChequeStatus(messageId, status);
+      const Role = 'chequemanager'
+      console.log(Role)
+      const response = await updateChequeStatus(messageId, status, null, null, Role);
       if (response.statusCode === 200) {
         setMessages((prevMessages) =>
           prevMessages.filter((msg) => msg._id !== messageId)
@@ -161,13 +168,15 @@ const MessageList = () => {
   };
 
   const handleRejectSingle = async (messageId) => {
-    await handleChequeStatus(messageId, "rejected");
+    console.log('reject single')
+    await handleChequeStatus(messageId, "rejected", Role = 'chequemanager');
   };
 
   const handleReceive = async () => {
+    console.log("IN rec")
     try {
       const promises = selectedMessages.map((id) =>
-        updateChequeStatus(id, "received")
+        updateChequeStatus(id, "received", null, null, 'chequemanager')
       );
       await Promise.all(promises);
 
@@ -242,9 +251,8 @@ const MessageList = () => {
           renderItem={({ item: msg }) => (
             <TouchableOpacity
               onPress={() => handleSelectMessage(msg._id)}
-              className={`flex-row items-center p-3 rounded-lg mb-3 ${
-                selectedMessages.includes(msg._id) ? "border-2 border-green-500" : "bg-gray-200"
-              }`}
+              className={`flex-row items-center p-3 rounded-lg mb-3 ${selectedMessages.includes(msg._id) ? "border-2 border-green-500" : "bg-gray-200"
+                }`}
             >
               {selectedMessages.includes(msg._id) && (
                 <MaterialIcons
@@ -338,4 +346,4 @@ const MessageList = () => {
   );
 };
 
-export default MessageList;
+export default MessageList;

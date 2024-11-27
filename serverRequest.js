@@ -1,12 +1,20 @@
-// const api_url = 'http://192.168.100.11:5000/api';
+
+import { auth } from "./global/global";
+
+const token = auth.accessToken
+
+
+
+const api_url = 'http://192.168.100.11:5000/api';
 // const api_url = 'http://localhost:5000/api';
-const api_url = 'http://192.168.3.101:5000/api';
+// const api_url = 'http://192.168.3.101:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
 // const api_url = 'http://192.168.3.100:5000/api';
 //10.200.254.243
 
 
 export const saveChequeRequest = async (data) => {
+    console.log(token)
     console.log("Saving cheque request...");
     console.log("Size of data:", new Blob([JSON.stringify(data)]).size, "bytes");
 
@@ -15,6 +23,7 @@ export const saveChequeRequest = async (data) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
             },
             body: JSON.stringify(data),
         });
@@ -93,6 +102,7 @@ export const automaticSignUp = async (data) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
             },
             body: JSON.stringify(data),
         });
@@ -113,13 +123,14 @@ export const automaticSignUp = async (data) => {
     }
 }
 
-export const getmembersCheque = async () =>{
+export const getmembersCheque = async (id, accessToken) =>{
     try {
         console.log("response")
-        const response = await fetch(`${api_url}/cheques/membercheque/67350024a70877fe03ff5052`, {
+        const response = await fetch(`${api_url}/cheques/membercheque/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${accessToken}`
             },
         });
 
@@ -139,13 +150,14 @@ export const getmembersCheque = async () =>{
 
     }
 }
-export const getMembersPostedCheque = async () => {
+export const getMembersPostedCheque = async (accessToken) => {
     try {
-        
+        console.log('in server', accessToken)
         const response = await fetch(`${api_url}/cheques/memberpostedcheque`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${accessToken}`
             },
         });
         if (!response.ok) {
@@ -165,6 +177,7 @@ export const getAllMemberCheques = async (month , year) => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
             },
         });
         if (!response.ok) {
@@ -187,15 +200,16 @@ export const getAllMemberCheques = async (month , year) => {
 
 
 
-export const updateChequeStatus = async (messageId, status, message=null, image=null) => {
-    console.log("BramchMnagerinupate.......................", image)
+export const updateChequeStatus = async (messageId, status, message=null, image=null, Role=null) => {
+    console.log("BramchMnagerinupate.......................",messageId, status, Role)
     try {
         const response = await fetch(`${api_url}/cheques/updatechequestatus`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({"messageId":messageId, "status": status, "message": message, "image": image})
+            body: JSON.stringify({"messageId":messageId, "status": status, "message": message, "image": image, "Role":Role})
         });
         if (!response.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -209,13 +223,14 @@ export const updateChequeStatus = async (messageId, status, message=null, image=
 };
 
 
-export const getNotifications = async (membertype) => {
-    console.log("ENTER")
+export const getNotifications = async (membertype, _id=null) => {
+    console.log("ENTER", _id)
     try {
-        const response = await fetch(`${api_url}/cheques/get-notifications?memberType=${membertype}`, {
+        const response = await fetch(`${api_url}/cheques/get-notifications?memberType=${membertype}&id=${_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${token}`
             },
             
         });
@@ -232,7 +247,7 @@ export const getNotifications = async (membertype) => {
 };
 
 
-export const getBranchReceivedCheque = async () => {
+export const getBranchReceivedCheque = async (accessToken) => {
     console.log("ENT")
     try {
         
@@ -240,6 +255,7 @@ export const getBranchReceivedCheque = async () => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': `Bearer ${accessToken}`
             },
         });
         if (!response.ok) {

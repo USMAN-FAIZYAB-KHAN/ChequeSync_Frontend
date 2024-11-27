@@ -5,6 +5,7 @@ import { Redirect } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import { auth } from '../global/global';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,9 +26,16 @@ const Index = () => {
     const checkUserRole = async () => {
       try {
         const accessToken = await SecureStore.getItemAsync('accessToken');
-        const role = await SecureStore.getItemAsync('userRole'); // Assuming userRole is stored during sign-in.
+        const role = await SecureStore.getItemAsync('userRole');
+        const refreshToken = await SecureStore.getItemAsync('refreshToken');
+        const id = await SecureStore.getItemAsync('id');
+
+        console.log(accessToken, role)
 
         if (accessToken && role) {
+          auth.id = id
+          auth.accessToken = accessToken
+          auth.refreshToken = refreshToken
           setUserRole(role.toLowerCase());
         }
       } catch (error) {
@@ -59,7 +67,7 @@ const Index = () => {
   }
 
   // Default: Redirect to sign-in if no valid role or token is found.
-  return <Redirect href="/branchmanager/chequedetail"  />;
+  return <Redirect href="/(auth)/signin"  />;
 };
 
 export default Index;

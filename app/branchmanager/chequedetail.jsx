@@ -15,13 +15,15 @@ import * as ImagePicker from "expo-image-picker";
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import * as Notifications from "expo-notifications";
 import { getBranchReceivedCheque, updateChequeStatus } from "../../serverRequest.js";
+import { auth } from "../../global/global.js";
 
 
-const _id = "67334eb57737198f6556ec4d"
 
 const memberLogo = require("../../assets/member-logo.png");
 
 const MessageList = () => {
+  const _id = auth.id
+  const accessToken = auth.accessToken
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [selectedMessages, setSelectedMessages] = useState([]);
@@ -38,10 +40,10 @@ const MessageList = () => {
 
   const socket = useSocket();
 
-
+console.log("In branch manager")
   const fetchCheques = async () => {
     try {
-      const response = await getBranchReceivedCheque();
+      const response = await getBranchReceivedCheque(accessToken);
       console.log(response.data)
       const cheques = response.data.formattedCheques;
       setMessages(cheques);
@@ -97,7 +99,7 @@ const MessageList = () => {
 
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: "Checque Posted",
+            title: "Cheque Posted",
             body: notificationMessage,
             sound: "default",
           },
@@ -240,7 +242,8 @@ const MessageList = () => {
   const handleChequeStatus = async (messageId, status) => {
     console.log("in handle cheque status", selectedBase64)
     try {
-      const response = await updateChequeStatus(messageId, status, customMessage, selectedBase64);
+      const Role = 'branchmanager'
+      const response = await updateChequeStatus(messageId, status, customMessage, selectedBase64, Role);
       if (response.statusCode === 200) {
         setSelectedBase64(null)
         setMessages((prevMessages) =>
@@ -273,7 +276,7 @@ const MessageList = () => {
   const handleReceive = async () => {
     try {
       const promises = selectedMessages.map((id) =>
-        updateChequeStatus(id, "approved")
+        updateChequeStatus(id, "approved",null,null,'branchmanager')
       );
       await Promise.all(promises);
 
