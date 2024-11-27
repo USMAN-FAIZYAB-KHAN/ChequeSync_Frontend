@@ -18,14 +18,12 @@ import { auth } from "../../global/global.js";
 
 
 const UploadScreen = () => {
+  
   const router = useRouter();
-  const {UpdatedImage} = useLocalSearchParams();
+  const {uri, Base64, month} = useLocalSearchParams();
 
 
-  // console.log('UpdateImage',UpdatedImage.uri)
-  // console.log('UpdateImage',UpdatedImage.base64)
-  // console.log(UpdateImage)
-  // console.log('up.............',selectedImage)
+ 
 
 
   const [selectedImage, setSelectedImage] = useState(UpdatedImage?UpdatedImage.uri:null); // Use passed image as default

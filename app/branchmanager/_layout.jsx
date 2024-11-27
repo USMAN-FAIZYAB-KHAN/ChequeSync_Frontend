@@ -1,8 +1,12 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { SocketProvider } from "../../context/socket.js"; // Adjust path as necessary
+import Header from "../header.jsx";  // Ensure path is correct
+
+import { auth } from '../../global/global.js';
+import { getUserdetail } from '../../serverRequest.js';
 
 const styles = StyleSheet.create({
   tabBar: {
@@ -39,9 +43,33 @@ const styles = StyleSheet.create({
 });
 
 const Layout = () => {
+  const [userDetails, setUserDetails] = useState({});
+  const _id = auth.id
+
+  const fetchgetUserdetail = async () => {
+    try {
+      const Response = await getUserdetail(_id);
+      const user = Response.data.user;
+      setUserDetails({
+        userId: user._id,
+        Type: user.type,
+        username: `${user.firstName} ${user.lastName}`,
+        email: user.userEmail,
+      });
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchgetUserdetail();
+  }, []);
   
   return (
     <SocketProvider>
+       {Object.keys(userDetails).length > 0 && (
+        <Header userDetails={userDetails} /> 
+      )}
       <Tabs
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color }) => {
@@ -69,6 +97,7 @@ const Layout = () => {
           tabBarInactiveTintColor: '#888',
           tabBarStyle: styles.tabBar,
           tabBarShowLabel: false,
+          headerShown: false
         })}
       >
         <Tabs.Screen

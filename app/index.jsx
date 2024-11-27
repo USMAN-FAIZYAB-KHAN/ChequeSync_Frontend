@@ -18,10 +18,6 @@ Notifications.setNotificationHandler({
 const Index = () => {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
-
-
-  
-
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -44,7 +40,6 @@ const Index = () => {
         setLoading(false);
       }
     };
-
     checkUserRole();
   }, []);
 
