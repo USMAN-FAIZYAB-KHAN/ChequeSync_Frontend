@@ -2,22 +2,25 @@ import React, { useEffect, useState } from "react";
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { SocketProvider } from "../../context/socket.js"; // Adjust path as necessary
-import Header from "../header.jsx";  // Ensure path is correct
-import { getUserdetail } from "../../serverRequest.js"; // Ensure path is correct
+import { SocketProvider } from "../../context/socket.js";
+import Header from "../header.jsx";
+import { getUserdetail } from "../../serverRequest.js";
 import { auth } from "../../global/global.js";
+import { LinearGradient } from 'expo-linear-gradient'; // For gradient effect
 
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: 'transparent',
     borderTopWidth: 0,
-    height: 70,
+    height: 80,
     elevation: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    paddingBottom: 10,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    paddingBottom: 5,
+    borderRadius: 25, // Smooth edges for the whole bar
+    marginHorizontal: 10, // To make the tab bar look less crowded
   },
   tabItem: {
     alignItems: 'center',
@@ -25,25 +28,35 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: '#CC2B52',
-    padding: 10,
-    borderTopLeftRadius: 15,
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 35,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 25,
+    elevation: 8,
     shadowColor: '#D4BEE4',
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.6,
     shadowRadius: 8,
     height: 70,
-    width: 83,
-    fontSize: 12,
+    width: 90,
+    fontSize: 14,
+    marginTop: -10, // Slight lift effect
   },
   inactiveTab: {
-    padding: 10,
+    padding: 15,
+    justifyContent: 'center',
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  iconStyle: {
+    marginBottom: 5,
   },
 });
 
 const Layout = () => {
   const [userDetails, setUserDetails] = useState({});
-  const _id = auth.id
+  const _id = auth.id;
 
   const fetchgetUserdetail = async () => {
     try {
@@ -67,7 +80,7 @@ const Layout = () => {
   return (
     <SocketProvider>
       {Object.keys(userDetails).length > 0 && (
-        <Header userDetails={userDetails} /> 
+        <Header userDetails={userDetails} />
       )}
 
       <Tabs
@@ -86,8 +99,13 @@ const Layout = () => {
 
             return (
               <View style={[styles.tabItem, iconStyle]}>
-                <FontAwesome5 name={iconName} size={22} color={focused ? '#ffffff' : color} />
-                <Text style={{ color: focused ? '#ffffff' : color, fontSize: 12, marginTop: 5 }}>
+                <FontAwesome5
+                  name={iconName}
+                  size={22}
+                  color={focused ? '#ffffff' : color}
+                  style={styles.iconStyle}
+                />
+                <Text style={[styles.tabText, { color: focused ? '#ffffff' : color }]}>
                   {route.name.charAt(0).toUpperCase() + route.name.slice(1)}
                 </Text>
               </View>
@@ -96,8 +114,8 @@ const Layout = () => {
           tabBarActiveTintColor: '#ffffff',
           tabBarInactiveTintColor: '#888',
           tabBarStyle: styles.tabBar,
-          tabBarShowLabel: false,
-          headerShown: false
+          tabBarShowLabel: true, // Show labels now
+          headerShown: false,
         })}
       >
         <Tabs.Screen
