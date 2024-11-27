@@ -185,6 +185,80 @@ export const getAllMemberCheques = async (month , year) => {
 };
 
 
+export const getUserdetail = async (userId) => {
+    try {
+        const url = `${api_url}/users/getuserdetail`;
+        const response = await fetch(url, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId }), 
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error("Error fetching user details:", error.message);
+        throw error; 
+    }
+};
+
+export const updatepassword = async(userId, confirmpswd) => {
+    try {
+        console.log("INUpdate..........")
+        const url = `${api_url}/users/updatepassword`;
+        const response = await fetch(url, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, confirmpswd }), 
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("serverRequest.................", result)
+        return result;
+
+    } catch (error) {
+        console.error("Error fetching user details:", error.message);
+        throw error; // Rethrow the error to handle it where the function is called
+    }
+}
+export const checkoldpassword = async(userId, oldpswd) => {
+    try {
+        console.log("INcheck..........")
+        const url = `${api_url}/users/checloldpassword`;
+        const response = await fetch(url, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, oldpswd }), 
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("serverRequest.................", result)
+        return result;
+
+    } catch (error) {
+        console.error("Error fetching user details:", error.message);
+        throw error; // Rethrow the error to handle it where the function is called
+    }
+}
 
 
 export const updateChequeStatus = async (messageId, status, message=null, image=null) => {

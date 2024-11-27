@@ -4,7 +4,6 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { Redirect } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -17,10 +16,6 @@ Notifications.setNotificationHandler({
 const Index = () => {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
-
-
-  
-
   useEffect(() => {
     const checkUserRole = async () => {
       try {
@@ -36,7 +31,6 @@ const Index = () => {
         setLoading(false);
       }
     };
-
     checkUserRole();
   }, []);
 
@@ -59,7 +53,7 @@ const Index = () => {
   }
 
   // Default: Redirect to sign-in if no valid role or token is found.
-  return <Redirect href="/branchmanager/chequedetail"  />;
+  return <Redirect href="/member/cheque"  />;
 };
 
 export default Index;
