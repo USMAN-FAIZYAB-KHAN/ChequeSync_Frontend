@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, Activit
 import { Picker } from '@react-native-picker/picker';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { getAllMemberCheques } from '../../serverRequest.js';
-
+import { auth } from '../../global/global.js';
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June', 'July',
   'August', 'September', 'October', 'November', 'December',
@@ -21,6 +21,7 @@ const getMonthName = (monthNumber) => {
 const filterOptions = ['all', 'received', 'rejected'];
 
 const MembersCheque = () => {
+  const accessToken = auth.accessToken
   const [cheques, setCheques] = useState([]);
   const [expandedMonths, setExpandedMonths] = useState({});
   const [filters, setFilters] = useState(
@@ -37,7 +38,7 @@ const MembersCheque = () => {
     try {
       setLoading(true);
       setActiveMonth(month);
-      const response = await getAllMemberCheques(month, selectedYear);
+      const response = await getAllMemberCheques(month, selectedYear, accessToken);
       setCheques(response.data.cheques);
     } catch (error) {
       console.error(`Error fetching cheques for ${month}:`, error);

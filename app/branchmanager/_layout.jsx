@@ -45,11 +45,14 @@ const styles = StyleSheet.create({
 const Layout = () => {
   const [userDetails, setUserDetails] = useState({});
   const _id = auth.id
+  const accessToken = auth.accessToken
 
   const fetchgetUserdetail = async () => {
+    console.log("SSS")
     try {
-      const Response = await getUserdetail(_id);
+      const Response = await getUserdetail(_id, accessToken);
       const user = Response.data.user;
+      
       setUserDetails({
         userId: user._id,
         Type: user.type,
@@ -60,6 +63,10 @@ const Layout = () => {
       console.error('Error fetching user details:', error);
     }
   };
+
+  useEffect(() => {
+    fetchgetUserdetail();
+  }, []);
 
   useEffect(() => {
     fetchgetUserdetail();
@@ -107,13 +114,13 @@ const Layout = () => {
             headerShown: false, // Hide the top header (navbar)
           }}
         />
-        <Tabs.Screen
-          name="memberscheque"
+        {/* <Tabs.Screen
+          name="checkstatus"
           options={{
             title: 'Members Cheque',
             headerShown: false, // Hide the top header (navbar)
           }}
-        />
+        /> */}
         <Tabs.Screen
           name="notification"
           options={{

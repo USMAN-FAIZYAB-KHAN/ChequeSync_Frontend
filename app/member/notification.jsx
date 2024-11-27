@@ -10,6 +10,7 @@ import { auth } from '../../global/global.js';
 
 export default function Notification() {
   const _id = auth.id;
+  const accessToken = auth.accessToken
   const [notificationsData, setNotificationData] = useState([]);
   const socket = useSocket();
 
@@ -18,7 +19,7 @@ export default function Notification() {
     const fetchNotifications = async () => {
       try {
         console.log(_id)
-        const res = await getNotifications("member", _id);
+        const res = await getNotifications("member", _id, accessToken);
         if (res.statusCode === 200) {
           setNotificationData(res.data.notificationSet);
         } else {

@@ -170,14 +170,14 @@ export const getMembersPostedCheque = async (accessToken) => {
         return { error: error.message };
     }
 };
-export const getAllMemberCheques = async (month, year) => {
+export const getAllMemberCheques = async (month, year, accessToken) => {
     try {
         let url = `${api_url}/cheques/allmembercheques?year=${year}&month=${month}`;
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': `Bearer ${token}`
+                'authorization': `Bearer ${accessToken}`
             },
         });
         if (!response.ok) {
@@ -200,7 +200,8 @@ export const getAllMemberCheques = async (month, year) => {
 
 export const getUserdetail = async (userId, accessToken) => {
     try {
-        console.log(accessToken)
+        console.log("1",accessToken)
+        console.log("2")
         const url = `${api_url}/users/getuserdetail`;
         const response = await fetch(url, {
             method: 'POST',
@@ -214,7 +215,7 @@ export const getUserdetail = async (userId, accessToken) => {
         if (!response.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
-
+        console.log(response)
         const result = await response.json();
         return result;
 
@@ -250,15 +251,15 @@ export const updatepassword = async (userId, confirmpswd) => {
         throw error; // Rethrow the error to handle it where the function is called
     }
 }
-export const checkoldpassword = async (userId, oldpswd) => {
+export const checkoldpassword = async (userId, oldpswd, accessToken) => {
     try {
-        console.log("INcheck..........")
+        console.log("INcheck..........", accessToken)
         const url = `${api_url}/users/checloldpassword`;
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': `Bearer ${token}`
+                'authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify({ userId, oldpswd }),
         });
@@ -301,14 +302,14 @@ export const updateChequeStatus = async (messageId, status, message = null, imag
 };
 
 
-export const getNotifications = async (membertype, _id = null) => {
+export const getNotifications = async (membertype, _id = null, accessToken=null) => {
     console.log("ENTER", _id)
     try {
         const response = await fetch(`${api_url}/cheques/get-notifications?memberType=${membertype}&id=${_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': `Bearer ${token}`
+                'authorization': `Bearer ${accessToken}`
             },
 
         });
