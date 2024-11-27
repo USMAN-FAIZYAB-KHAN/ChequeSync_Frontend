@@ -4,16 +4,18 @@ import { getNotifications } from "../../serverRequest.js";
 import moment from 'moment'; // For formatting dates
 import { useSocket } from "../../context/socket.js"; // Adjust path as necessary
 import * as Notifications from "expo-notifications";
+import { auth } from '../../global/global.js';
 
 export default function Notification() {
   const [notificationsData, setNotificationData] = useState([]);
   const socket = useSocket();
+  const accessToken = auth.accessToken
 
   useEffect(() => {
     // Fetch initial notifications from the server
     const fetchNotifications = async () => {
       try {
-        const res = await getNotifications("chequemanager");
+        const res = await getNotifications("chequemanager",null, accessToken);
         if (res.statusCode === 200) {
           setNotificationData(res.data.notificationSet);
         } else {

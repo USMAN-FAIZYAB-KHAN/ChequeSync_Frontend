@@ -25,6 +25,7 @@ const UserProfile = () => {
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
   const [loading, setLoading] = useState(false); // Track loading state
   const router = useRouter();
+  const accessToken = auth.accessToken
 
   const { userId, Type, username, email } = useLocalSearchParams();
 
@@ -75,7 +76,7 @@ const UserProfile = () => {
     setLoading(true); // Show loading spinner
 
     const isOldPasswordValid = async () => {
-      const Response = await checkoldpassword(userId, oldPasswordInput);
+      const Response = await checkoldpassword(userId, oldPasswordInput, accessToken);
       if (!(Response.data.message === "Success")) {
         alert("Error", "Old password is incorrect!");
         setLoading(false); // Hide loading spinner

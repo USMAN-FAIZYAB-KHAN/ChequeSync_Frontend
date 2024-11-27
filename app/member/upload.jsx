@@ -20,16 +20,18 @@ import { auth } from "../../global/global.js";
 const UploadScreen = () => {
   
   const router = useRouter();
-  const {uri, Base64, month} = useLocalSearchParams();
+  
 
 
  
 
 
-  const [selectedImage, setSelectedImage] = useState(UpdatedImage?UpdatedImage.uri:null); // Use passed image as default
+  const {uri, Base64, month} = useLocalSearchParams();
+
+  const [selectedImage, setSelectedImage] = useState(uri || null); // Use passed image as default
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [base64Image, setBase64Image] = useState(UpdatedImage?UpdatedImage.base64:"");
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [base64Image, setBase64Image] = useState(Base64 || "");
+  const [selectedMonth, setSelectedMonth] = useState(month || "");
   const [isFocused, setIsFocused] = useState(false);
   
   const months = [

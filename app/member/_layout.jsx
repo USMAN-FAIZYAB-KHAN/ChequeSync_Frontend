@@ -56,12 +56,15 @@ const styles = StyleSheet.create({
 
 const Layout = () => {
   const [userDetails, setUserDetails] = useState({});
-  const _id = auth.id;
+  const _id = auth.id
+  const accessToken = auth.accessToken
 
   const fetchgetUserdetail = async () => {
+    console.log("SSS")
     try {
-      const Response = await getUserdetail(_id);
+      const Response = await getUserdetail(_id, accessToken);
       const user = Response.data.user;
+      
       setUserDetails({
         userId: user._id,
         Type: user.type,

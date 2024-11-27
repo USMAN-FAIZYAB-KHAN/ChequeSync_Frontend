@@ -10,12 +10,13 @@ export default function Notification() {
   const [notificationsData, setNotificationData] = useState([]);
   const socket = useSocket();
   const navigation = useNavigation();
+  const accessToken = auth.accessToken
 
   useEffect(() => {
     // Fetch initial notifications from the server
     const fetchNotifications = async () => {
       try {
-        const res = await getNotifications("branchmanager");
+        const res = await getNotifications("branchmanager", null, accessToken);
         if (res.statusCode === 200) {
           setNotificationData(res.data.notificationSet);
         } else {

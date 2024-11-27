@@ -52,6 +52,7 @@ const Layout = () => {
     try {
       const Response = await getUserdetail(_id, accessToken);
       const user = Response.data.user;
+      
       setUserDetails({
         userId: user._id,
         Type: user.type,
