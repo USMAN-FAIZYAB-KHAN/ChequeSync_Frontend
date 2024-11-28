@@ -12,25 +12,20 @@ import { Picker } from "@react-native-picker/picker";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { saveChequeRequest } from "../../serverRequest.js"
 import { useRouter } from 'expo-router';
+import { useEffect } from "react";
 import { useLocalSearchParams } from 'expo-router';
 import { auth } from "../../global/global.js";
 
 
 
+
 const UploadScreen = () => {
-  
+  const accessToken = auth.accessToken;  
   const router = useRouter();
-  
-
-
- 
-
-
-  const {uri, Base64, month} = useLocalSearchParams();
-
-  const [selectedImage, setSelectedImage] = useState(uri || null); // Use passed image as default
+  const { month } = useLocalSearchParams();
+  const [selectedImage, setSelectedImage] = useState(null);
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [base64Image, setBase64Image] = useState(Base64 || "");
+  const [base64Image, setBase64Image] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(month || "");
   const [isFocused, setIsFocused] = useState(false);
   
@@ -48,6 +43,11 @@ const UploadScreen = () => {
     "November",
     "December",
   ];
+
+
+  useEffect(() => {
+    console.log(selectedMonth);
+  }, [selectedMonth]);
 
   const pickImage = async () => {
     const permissionResult =
@@ -80,6 +80,7 @@ const UploadScreen = () => {
         memberId: auth.id,
         month: months.indexOf(selectedMonth) + 1,
         image: base64Image,
+        accessToken
     });
     if (result && result.statusCode === 201) {
         setSelectedImage(null);

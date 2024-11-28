@@ -5,7 +5,7 @@ const token = auth.accessToken
 
 
 
-const api_url = 'http://192.168.100.11:5000/api';
+const api_url = 'http://192.168.1.6:5000/api';
 // const api_url = 'http://localhost:5000/api';
 // const api_url = 'http://192.168.3.101:5000/api';
 // const api_url = 'http:// 10.200.255.21:5000/api';
@@ -23,7 +23,7 @@ export const saveChequeRequest = async (data) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': `Bearer ${token}`
+                'authorization': `Bearer ${data.accessToken}`
             },
             body: JSON.stringify(data),
         });

@@ -49,15 +49,14 @@ const ChequeCard = ({ id, month, date, status, image }) => {
       allowsEditing: true,
       quality: 1,
     });
-    console.log("updated image.........",result)
+    
     if (!result.canceled) {
       router.push({
         pathname: "/member/upload",
         params: {
-          uri: result.assets[0].uri,
-          Base64: result.assets[0].base64,
           month
         },
+        key: Math.random().toString(), 
       });
     }
   };
